@@ -55,7 +55,7 @@ public class BuildCheckpoints {
         // Configure bitcoinj to fetch only headers, not save them to disk, connect to a local fully synced/validated
         // node and to save block headers that are on interval boundaries, as long as they are <1 month old.
         final BlockStore store = new MemoryBlockStore(PARAMS);
-        final BlockChain chain = new BlockChain(PARAMS, store);
+        final SPVBlockChain chain = new SPVBlockChain(PARAMS, store);
         final PeerGroup peerGroup = new PeerGroup(PARAMS, chain);
         peerGroup.addAddress(InetAddress.getLocalHost());
         long now = new Date().getTime() / 1000;

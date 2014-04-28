@@ -77,7 +77,7 @@ public class BlockTest {
         } catch (VerificationException e) {
             // Expected.
         }
-        // Blocks contain their own difficulty target. The BlockChain verification mechanism is what stops real blocks
+        // Blocks contain their own difficulty target. The SPVBlockChain verification mechanism is what stops real blocks
         // from containing artificially weak difficulties.
         block.setDifficultyTarget(Block.EASIEST_DIFFICULTY_TARGET);
         // Now it should pass.

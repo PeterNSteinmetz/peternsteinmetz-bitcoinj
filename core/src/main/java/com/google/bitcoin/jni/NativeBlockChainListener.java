@@ -38,10 +38,10 @@ public class NativeBlockChainListener implements BlockChainListener {
     public native boolean isTransactionRelevant(Transaction tx) throws ScriptException;
 
     @Override
-    public native void receiveFromBlock(Transaction tx, StoredBlock block, BlockChain.NewBlockType blockType,
+    public native void receiveFromBlock(Transaction tx, StoredBlock block, SPVBlockChain.NewBlockType blockType,
                                         int relativityOffset) throws VerificationException;
 
     @Override
-    public native void notifyTransactionIsInBlock(Sha256Hash txHash, StoredBlock block, BlockChain.NewBlockType blockType,
+    public native void notifyTransactionIsInBlock(Sha256Hash txHash, StoredBlock block, SPVBlockChain.NewBlockType blockType,
                                                   int relativityOffset) throws VerificationException;
 }

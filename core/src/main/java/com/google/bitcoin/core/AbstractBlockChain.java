@@ -48,11 +48,11 @@ import static com.google.common.base.Preconditions.*;
  * reading the getting started guide, but briefly, fully validating block chains need fully validating stores. In
  * the lightweight SPV mode, a {@link com.google.bitcoin.store.SPVBlockStore} is the right choice.</p>
  *
- * <p>This class implements an abstract class which makes it simple to create a BlockChain that does/doesn't do full
+ * <p>This class implements an abstract class which makes it simple to create a SPVBlockChain that does/doesn't do full
  * verification.  It verifies headers and is implements most of what is required to implement SPV mode, but
  * also provides callback hooks which can be used to do full verification.</p>
  *
- * <p>There are two subclasses of AbstractBlockChain that are useful: {@link BlockChain}, which is the simplest
+ * <p>There are two subclasses of AbstractBlockChain that are useful: {@link SPVBlockChain}, which is the simplest
  * class and implements <i>simplified payment verification</i>. This is a lightweight and efficient mode that does
  * not verify the contents of blocks, just their headers. A {@link VerifiedBlockChain} paired with a
  * {@link com.google.bitcoin.store.H2FullPrunedBlockStore} implements full verification, which is equivalent to the
@@ -97,9 +97,9 @@ public abstract class AbstractBlockChain {
     protected StoredBlock chainHead;
 
     // TODO: Scrap this and use a proper read/write for all of the block chain objects.
-    // The chainHead field is read/written synchronized with this object rather than BlockChain. However writing is
-    // also guaranteed to happen whilst BlockChain is synchronized (see setChainHead). The goal of this is to let
-    // clients quickly access the chain head even whilst the block chain is downloading and thus the BlockChain is
+    // The chainHead field is read/written synchronized with this object rather than SPVBlockChain. However writing is
+    // also guaranteed to happen whilst SPVBlockChain is synchronized (see setChainHead). The goal of this is to let
+    // clients quickly access the chain head even whilst the block chain is downloading and thus the SPVBlockChain is
     // locked most of the time.
     private final Object chainHeadLock = new Object();
 
@@ -138,7 +138,7 @@ public abstract class AbstractBlockChain {
 
 
     /**
-     * Constructs a BlockChain connected to the given list of listeners (eg, wallets) and a store.
+     * Constructs a SPVBlockChain connected to the given list of listeners (eg, wallets) and a store.
      */
     public AbstractBlockChain(NetworkParameters params, List<BlockChainListener> listeners,
                               BlockStore blockStore) throws BlockStoreException {
@@ -151,9 +151,9 @@ public abstract class AbstractBlockChain {
     }
 
     /**
-     * Add a wallet to the BlockChain. Note that the wallet will be unaffected by any blocks received while it
-     * was not part of this BlockChain. This method is useful if the wallet has just been created, and its keys
-     * have never been in use, or if the wallet has been loaded along with the BlockChain. Note that adding multiple
+     * Add a wallet to the SPVBlockChain. Note that the wallet will be unaffected by any blocks received while it
+     * was not part of this SPVBlockChain. This method is useful if the wallet has just been created, and its keys
+     * have never been in use, or if the wallet has been loaded along with the SPVBlockChain. Note that adding multiple
      * wallets is not well tested!
      */
     public void addWallet(Wallet wallet) {
@@ -236,7 +236,7 @@ public abstract class AbstractBlockChain {
     protected abstract void notSettingChainHead() throws BlockStoreException;
     
     /**
-     * For a standard BlockChain, this should return blockStore.get(hash),
+     * For a standard SPVBlockChain, this should return blockStore.get(hash),
      * for a VerifiedBlockChain blockStore.getOnceUndoableStoredBlock(hash)
      */
     protected abstract StoredBlock getStoredBlockInCurrentScope(Sha256Hash hash) throws BlockStoreException;

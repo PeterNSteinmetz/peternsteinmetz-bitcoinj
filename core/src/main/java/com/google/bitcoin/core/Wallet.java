@@ -85,7 +85,7 @@ import static com.google.common.base.Preconditions.*;
  * <p>To learn more about this class, read <b><a href="http://code.google.com/p/bitcoinj/wiki/WorkingWithTheWallet">
  *     working with the wallet.</a></b></p>
  *
- * <p>To fill up a Wallet with transactions, you need to use it in combination with a {@link BlockChain} and various
+ * <p>To fill up a Wallet with transactions, you need to use it in combination with a {@link SPVBlockChain} and various
  * other objects, see the <a href="http://code.google.com/p/bitcoinj/wiki/GettingStarted">Getting started</a> tutorial
  * on the website to learn more about how to set everything up.</p>
  *
@@ -150,7 +150,7 @@ public class Wallet implements Serializable, BlockChainListener, PeerFilterProvi
     private transient TransactionConfidence.Listener txConfidenceListener;
 
     // If a TX hash appears in this set then notifyNewBestBlock will ignore it, as its confidence was already set up
-    // in receive() via Transaction.setBlockAppearance(). As the BlockChain always calls notifyNewBestBlock even if
+    // in receive() via Transaction.setBlockAppearance(). As the SPVBlockChain always calls notifyNewBestBlock even if
     // it sent transactions to the wallet, without this we'd double count.
     private transient HashSet<Sha256Hash> ignoreNextNewBlock;
     // Whether or not to ignore nLockTime > 0 transactions that are received to the mempool.
@@ -581,7 +581,7 @@ public class Wallet implements Serializable, BlockChainListener, PeerFilterProvi
     }
     
     /**
-     * Called by the {@link BlockChain} when we receive a new filtered block that contains a transactions previously
+     * Called by the {@link SPVBlockChain} when we receive a new filtered block that contains a transactions previously
      * received by a call to @{link receivePending}.<p>
      *
      * This is necessary for the internal book-keeping Wallet does. When a transaction is received that sends us
@@ -599,7 +599,7 @@ public class Wallet implements Serializable, BlockChainListener, PeerFilterProvi
      * block might change which chain is best causing a reorganize. A re-org can totally change our balance!
      */
     public void notifyTransactionIsInBlock(Sha256Hash txHash, StoredBlock block,
-                                           BlockChain.NewBlockType blockType,
+                                           SPVBlockChain.NewBlockType blockType,
                                            int relativityOffset) throws VerificationException {
         lock.lock();
         try {
@@ -799,7 +799,7 @@ public class Wallet implements Serializable, BlockChainListener, PeerFilterProvi
     }
 
     /**
-     * Called by the {@link BlockChain} when we receive a new block that sends coins to one of our addresses or
+     * Called by the {@link SPVBlockChain} when we receive a new block that sends coins to one of our addresses or
      * spends coins from one of our addresses (note that a single transaction can do both).<p>
      *
      * This is necessary for the internal book-keeping Wallet does. When a transaction is received that sends us
@@ -818,7 +818,7 @@ public class Wallet implements Serializable, BlockChainListener, PeerFilterProvi
      */
     @Override
     public void receiveFromBlock(Transaction tx, StoredBlock block,
-                                 BlockChain.NewBlockType blockType,
+                                 SPVBlockChain.NewBlockType blockType,
                                  int relativityOffset) throws VerificationException {
         lock.lock();
         try {
@@ -833,14 +833,14 @@ public class Wallet implements Serializable, BlockChainListener, PeerFilterProvi
         }
     }
 
-    private void receive(Transaction tx, StoredBlock block, BlockChain.NewBlockType blockType,
+    private void receive(Transaction tx, StoredBlock block, SPVBlockChain.NewBlockType blockType,
                          int relativityOffset) throws VerificationException {
         // Runs in a peer thread.
         checkState(lock.isHeldByCurrentThread());
         BigInteger prevBalance = getBalance();
         Sha256Hash txHash = tx.getHash();
-        boolean bestChain = blockType == BlockChain.NewBlockType.BEST_CHAIN;
-        boolean sideChain = blockType == BlockChain.NewBlockType.SIDE_CHAIN;
+        boolean bestChain = blockType == SPVBlockChain.NewBlockType.BEST_CHAIN;
+        boolean sideChain = blockType == SPVBlockChain.NewBlockType.SIDE_CHAIN;
 
         BigInteger valueSentFromMe = tx.getValueSentFromMe(this);
         BigInteger valueSentToMe = tx.getValueSentToMe(this);
@@ -901,7 +901,7 @@ public class Wallet implements Serializable, BlockChainListener, PeerFilterProvi
             tx.setBlockAppearance(block, bestChain, relativityOffset);
             if (bestChain) {
                 // Don't notify this tx of work done in notifyNewBestBlock which will be called immediately after
-                // this method has been called by BlockChain for all relevant transactions. Otherwise we'd double
+                // this method has been called by SPVBlockChain for all relevant transactions. Otherwise we'd double
                 // count.
                 ignoreNextNewBlock.add(txHash);
             }
@@ -957,7 +957,7 @@ public class Wallet implements Serializable, BlockChainListener, PeerFilterProvi
     }
 
     /**
-     * <p>Called by the {@link BlockChain} when a new block on the best chain is seen, AFTER relevant wallet
+     * <p>Called by the {@link SPVBlockChain} when a new block on the best chain is seen, AFTER relevant wallet
      * transactions are extracted and sent to us UNLESS the new block caused a re-org, in which case this will
      * not be called (the {@link Wallet#reorganize(StoredBlock, java.util.List, java.util.List)} method will
      * call this one in that case).</p>
@@ -2463,7 +2463,7 @@ public class Wallet implements Serializable, BlockChainListener, PeerFilterProvi
     /**
      * <p>Don't call this directly. It's not intended for API users.</p>
      *
-     * <p>Called by the {@link BlockChain} when the best chain (representing total work done) has changed. This can
+     * <p>Called by the {@link SPVBlockChain} when the best chain (representing total work done) has changed. This can
      * cause the number of confirmations of a transaction to go higher, lower, drop to zero and can even result in
      * a transaction going dead (will never confirm) due to a double spend.</p>
      *
@@ -2592,7 +2592,7 @@ public class Wallet implements Serializable, BlockChainListener, PeerFilterProvi
                 for (TxOffsetPair pair : mapBlockTx.get(block.getHeader().getHash())) {
                     log.info("  tx {}", pair.tx.getHash());
                     try {
-                        receive(pair.tx, block, BlockChain.NewBlockType.BEST_CHAIN, pair.offset);
+                        receive(pair.tx, block, SPVBlockChain.NewBlockType.BEST_CHAIN, pair.offset);
                     } catch (ScriptException e) {
                         throw new RuntimeException(e);  // Cannot happen as these blocks were already verified.
                     }

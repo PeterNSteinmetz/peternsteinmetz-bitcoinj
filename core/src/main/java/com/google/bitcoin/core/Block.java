@@ -46,7 +46,7 @@ import static com.google.bitcoin.core.Utils.doubleDigestTwoBuffers;
  * more detail on blocks. <p/>
  *
  * To get a block, you can either build one from the raw bytes you can get from another implementation, or request one
- * specifically using {@link Peer#getBlock(Sha256Hash)}, or grab one from a downloaded {@link BlockChain}.
+ * specifically using {@link Peer#getBlock(Sha256Hash)}, or grab one from a downloaded {@link SPVBlockChain}.
  */
 public class Block extends Message {
     private static final Logger log = LoggerFactory.getLogger(Block.class);
@@ -905,7 +905,7 @@ public class Block extends Message {
 
     /**
      * Returns the difficulty of the proof of work that this block should meet encoded <b>in compact form</b>. The {@link
-     * BlockChain} verifies that this is not too easy by looking at the length of the chain when the block is added.
+     * SPVBlockChain} verifies that this is not too easy by looking at the length of the chain when the block is added.
      * To find the actual value the hash should be compared against, use
      * {@link com.google.bitcoin.core.Block#getDifficultyTargetAsInteger()}. Note that this is <b>not</b> the same as
      * the difficulty value reported by the Bitcoin "getdifficulty" RPC that you may see on various block explorers.

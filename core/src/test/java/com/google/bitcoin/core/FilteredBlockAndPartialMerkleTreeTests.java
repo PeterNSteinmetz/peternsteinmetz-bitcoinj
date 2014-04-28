@@ -117,7 +117,7 @@ public class FilteredBlockAndPartialMerkleTreeTests extends TestWithPeerGroup {
         super.setUp(blockStore);
         
         peerGroup.addWallet(wallet);
-        blockChain.addWallet(wallet);
+        spvBlockChain.addWallet(wallet);
 
         peerGroup.startAsync();
         peerGroup.awaitRunning();

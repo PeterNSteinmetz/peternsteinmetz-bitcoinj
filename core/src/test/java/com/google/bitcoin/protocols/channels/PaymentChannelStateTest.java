@@ -68,7 +68,7 @@ public class PaymentChannelStateTest extends TestWithWallet {
             }
         }));
         sendMoneyToWallet(Utils.COIN, AbstractBlockChain.NewBlockType.BEST_CHAIN);
-        chain = new BlockChain(params, wallet, blockStore); // Recreate chain as sendMoneyToWallet will confuse it
+        chain = new SPVBlockChain(params, wallet, blockStore); // Recreate chain as sendMoneyToWallet will confuse it
         serverKey = new ECKey();
         serverWallet = new Wallet(params);
         serverWallet.addKey(serverKey);

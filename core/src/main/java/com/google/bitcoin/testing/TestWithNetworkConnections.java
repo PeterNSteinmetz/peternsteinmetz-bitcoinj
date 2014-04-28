@@ -47,7 +47,7 @@ public class TestWithNetworkConnections {
     public static final int PEER_SERVERS = 5;
     protected NetworkParameters unitTestParams;
     protected BlockStore blockStore;
-    protected BlockChain blockChain;
+    protected SPVBlockChain spvBlockChain;
     protected Wallet wallet;
     protected ECKey key;
     protected Address address;
@@ -88,7 +88,7 @@ public class TestWithNetworkConnections {
         key = new ECKey();
         address = key.toAddress(unitTestParams);
         wallet.addKey(key);
-        blockChain = new BlockChain(unitTestParams, wallet, blockStore);
+        spvBlockChain = new SPVBlockChain(unitTestParams, wallet, blockStore);
 
         startPeerServers();
         if (clientType == ClientType.NIO_CLIENT_MANAGER || clientType == ClientType.BLOCKING_CLIENT_MANAGER) {

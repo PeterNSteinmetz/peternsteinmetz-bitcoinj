@@ -39,11 +39,11 @@ import static org.junit.Assert.*;
 
 // Handling of chain splits/reorgs are in ChainSplitTests.
 
-public class BlockChainTest {
-    private BlockChain testNetChain;
+public class SPVBlockChainTest {
+    private SPVBlockChain testNetChain;
 
     private Wallet wallet;
-    private BlockChain chain;
+    private SPVBlockChain chain;
     private BlockStore blockStore;
     private Address coinbaseTo;
     private NetworkParameters unitTestParams;
@@ -64,25 +64,25 @@ public class BlockChainTest {
     @Before
     public void setUp() throws Exception {
         BriefLogFormatter.initVerbose();
-        testNetChain = new BlockChain(testNet, new Wallet(testNet), new MemoryBlockStore(testNet));
+        testNetChain = new SPVBlockChain(testNet, new Wallet(testNet), new MemoryBlockStore(testNet));
         Wallet.SendRequest.DEFAULT_FEE_PER_KB = BigInteger.ZERO;
 
         unitTestParams = UnitTestParams.get();
         wallet = new Wallet(unitTestParams) {
             @Override
-            public void receiveFromBlock(Transaction tx, StoredBlock block, BlockChain.NewBlockType blockType,
+            public void receiveFromBlock(Transaction tx, StoredBlock block, SPVBlockChain.NewBlockType blockType,
                                          int relativityOffset) throws VerificationException {
                 super.receiveFromBlock(tx, block, blockType, relativityOffset);
-                BlockChainTest.this.block[0] = block;
+                SPVBlockChainTest.this.block[0] = block;
                 if (tx.isCoinBase()) {
-                    BlockChainTest.this.coinbaseTransaction = tx;
+                    SPVBlockChainTest.this.coinbaseTransaction = tx;
                 }
             }
         };
         wallet.addKey(new ECKey());
 
         resetBlockStore();
-        chain = new BlockChain(unitTestParams, wallet, blockStore);
+        chain = new SPVBlockChain(unitTestParams, wallet, blockStore);
 
         coinbaseTo = wallet.getKeys().get(0).toAddress(unitTestParams);
     }
@@ -394,7 +394,7 @@ public class BlockChainTest {
     @Test
     public void estimatedBlockTime() throws Exception {
         NetworkParameters params = MainNetParams.get();
-        BlockChain prod = new BlockChain(params, new MemoryBlockStore(params));
+        SPVBlockChain prod = new SPVBlockChain(params, new MemoryBlockStore(params));
         Date d = prod.estimateBlockTime(200000);
         // The actual date of block 200,000 was 2012-09-22 10:47:00
         assertEquals(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").parse("2012-10-23T08:35:05.000-0700"), d);

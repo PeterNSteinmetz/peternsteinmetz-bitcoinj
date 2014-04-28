@@ -46,7 +46,7 @@ public class BlockImporter {
         if (store instanceof FullPrunedBlockStore)
             chain = new VerifiedBlockChain(params, (FullPrunedBlockStore) store);
         else
-            chain = new BlockChain(params, store);
+            chain = new SPVBlockChain(params, store);
         
         BlockFileLoader loader = new BlockFileLoader(params, BlockFileLoader.getReferenceClientBlockFileList());
         

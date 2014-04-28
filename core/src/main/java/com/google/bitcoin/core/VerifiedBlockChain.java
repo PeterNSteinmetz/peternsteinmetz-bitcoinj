@@ -50,7 +50,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
     private boolean runScripts = true;
 
     /**
-     * Constructs a BlockChain connected to the given wallet and store. To obtain a {@link Wallet} you can construct
+     * Constructs a SPVBlockChain connected to the given wallet and store. To obtain a {@link Wallet} you can construct
      * one from scratch, or you can deserialize a saved wallet from disk using {@link Wallet#loadFromFile(java.io.File)}
      */
     public VerifiedBlockChain(NetworkParameters params, Wallet wallet, FullPrunedBlockStore blockStore) throws BlockStoreException {
@@ -60,7 +60,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
     }
 
     /**
-     * Constructs a BlockChain that has no wallet at all. This is helpful when you don't actually care about sending
+     * Constructs a SPVBlockChain that has no wallet at all. This is helpful when you don't actually care about sending
      * and receiving coins but rather, just want to explore the network data structures.
      */
     public VerifiedBlockChain(NetworkParameters params, FullPrunedBlockStore blockStore) throws BlockStoreException {
@@ -68,7 +68,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
     }
 
     /**
-     * Constructs a BlockChain connected to the given list of wallets and a store.
+     * Constructs a SPVBlockChain connected to the given list of wallets and a store.
      */
     public VerifiedBlockChain(NetworkParameters params, List<BlockChainListener> listeners,
                               FullPrunedBlockStore blockStore) throws BlockStoreException {

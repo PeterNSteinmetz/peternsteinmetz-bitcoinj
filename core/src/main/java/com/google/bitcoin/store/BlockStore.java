@@ -45,8 +45,8 @@ public interface BlockStore {
 
     /**
      * Returns the {@link StoredBlock} that represents the top of the chain of greatest total work. Note that this
-     * can be arbitrarily expensive, you probably should use {@link com.google.bitcoin.core.BlockChain#getChainHead()}
-     * or perhaps {@link com.google.bitcoin.core.BlockChain#getBestChainHeight()} which will run in constant time and
+     * can be arbitrarily expensive, you probably should use {@link com.google.bitcoin.core.SPVBlockChain#getChainHead()}
+     * or perhaps {@link com.google.bitcoin.core.SPVBlockChain#getBestChainHeight()} which will run in constant time and
      * not take any heavyweight locks.
      */
     StoredBlock getChainHead() throws BlockStoreException;

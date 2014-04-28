@@ -464,7 +464,7 @@ public class WalletTest extends TestWithWallet {
 
         // Now confirm the transaction by including it into a block.
         StoredBlock b3 = createFakeBlock(blockStore, spend).storedBlock;
-        wallet.receiveFromBlock(spend, b3, BlockChain.NewBlockType.BEST_CHAIN, 0);
+        wallet.receiveFromBlock(spend, b3, SPVBlockChain.NewBlockType.BEST_CHAIN, 0);
 
         // Change is confirmed. We started with 5.50 so we should have 4.50 left.
         BigInteger v4 = toNanoCoins(4, 50);
@@ -567,13 +567,13 @@ public class WalletTest extends TestWithWallet {
         Address someOtherGuy = new ECKey().toAddress(params);
         TransactionOutput output = new TransactionOutput(params, tx, Utils.toNanoCoins(0, 5), someOtherGuy);
         tx.addOutput(output);
-        wallet.receiveFromBlock(tx, null, BlockChain.NewBlockType.BEST_CHAIN, 0);
+        wallet.receiveFromBlock(tx, null, SPVBlockChain.NewBlockType.BEST_CHAIN, 0);
 
         assertTrue("Wallet is not consistent", wallet.isConsistent());
 
         Transaction txClone = new Transaction(params, tx.bitcoinSerialize());
         try {
-            wallet.receiveFromBlock(txClone, null, BlockChain.NewBlockType.BEST_CHAIN, 0);
+            wallet.receiveFromBlock(txClone, null, SPVBlockChain.NewBlockType.BEST_CHAIN, 0);
             fail("Illegal argument not thrown when it should have been.");
         } catch (IllegalStateException ex) {
             // expected
@@ -587,7 +587,7 @@ public class WalletTest extends TestWithWallet {
         Address someOtherGuy = new ECKey().toAddress(params);
         TransactionOutput output = new TransactionOutput(params, tx, Utils.toNanoCoins(0, 5), someOtherGuy);
         tx.addOutput(output);
-        wallet.receiveFromBlock(tx, null, BlockChain.NewBlockType.BEST_CHAIN, 0);
+        wallet.receiveFromBlock(tx, null, SPVBlockChain.NewBlockType.BEST_CHAIN, 0);
 
         assertTrue(wallet.isConsistent());
 
@@ -1104,7 +1104,7 @@ public class WalletTest extends TestWithWallet {
         wallet.addWatchedAddress(watchedAddress);
         Transaction t1 = createFakeTx(params, CENT, watchedAddress);
         StoredBlock b3 = createFakeBlock(blockStore, t1).storedBlock;
-        wallet.receiveFromBlock(t1, b3, BlockChain.NewBlockType.BEST_CHAIN, 0);
+        wallet.receiveFromBlock(t1, b3, SPVBlockChain.NewBlockType.BEST_CHAIN, 0);
         assertEquals(BigInteger.ZERO, wallet.getBalance());
         assertEquals(CENT, wallet.getWatchedBalance());
 
@@ -1131,9 +1131,9 @@ public class WalletTest extends TestWithWallet {
         st2.addOutput(COIN, notMyAddr);
         st2.addInput(t1.getOutput(0));
         st2.addInput(t2.getOutput(0));
-        wallet.receiveFromBlock(t1, b1, BlockChain.NewBlockType.BEST_CHAIN, 0);
+        wallet.receiveFromBlock(t1, b1, SPVBlockChain.NewBlockType.BEST_CHAIN, 0);
         assertEquals(4, wallet.getBloomFilterElementCount());
-        wallet.receiveFromBlock(st2, b1, BlockChain.NewBlockType.BEST_CHAIN, 0);
+        wallet.receiveFromBlock(st2, b1, SPVBlockChain.NewBlockType.BEST_CHAIN, 0);
         assertEquals(4, wallet.getBloomFilterElementCount());
         assertEquals(CENT, st2.getValueSentFromMe(wallet));
     }
@@ -1155,7 +1155,7 @@ public class WalletTest extends TestWithWallet {
         // Note that this has a 1e-12 chance of failing this unit test due to a false positive
         assertFalse(wallet.getBloomFilter(1e-12).contains(outPoint.bitcoinSerialize()));
 
-        wallet.receiveFromBlock(t1, b1, BlockChain.NewBlockType.BEST_CHAIN, 0);
+        wallet.receiveFromBlock(t1, b1, SPVBlockChain.NewBlockType.BEST_CHAIN, 0);
         assertTrue(wallet.getBloomFilter(1e-12).contains(outPoint.bitcoinSerialize()));
     }
 
@@ -2084,7 +2084,7 @@ public class WalletTest extends TestWithWallet {
         assertArrayEquals(scriptSig, request4.tx.getInput(0).getScriptBytes());
     }
 
-    // There is a test for spending a coinbase transaction as it matures in BlockChainTest#coinbaseTransactionAvailability
+    // There is a test for spending a coinbase transaction as it matures in SPVBlockChainTest#coinbaseTransactionAvailability
 
     // Support for offline spending is tested in PeerGroupTest
 

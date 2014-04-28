@@ -43,7 +43,7 @@ public class ChainSplitTest {
 
     private NetworkParameters unitTestParams;
     private Wallet wallet;
-    private BlockChain chain;
+    private SPVBlockChain chain;
     private Address coinsTo;
     private Address coinsTo2;
     private Address someOtherGuy;
@@ -59,7 +59,7 @@ public class ChainSplitTest {
         wallet.addKey(new ECKey());
         wallet.addKey(new ECKey());
         blockStore = new MemoryBlockStore(unitTestParams);
-        chain = new BlockChain(unitTestParams, wallet, blockStore);
+        chain = new SPVBlockChain(unitTestParams, wallet, blockStore);
         coinsTo = wallet.getKeys().get(0).toAddress(unitTestParams);
         coinsTo2 = wallet.getKeys().get(1).toAddress(unitTestParams);
         someOtherGuy = new ECKey().toAddress(unitTestParams);

@@ -20,7 +20,6 @@ import com.google.bitcoin.core.*;
 import com.google.bitcoin.params.UnitTestParams;
 import com.google.bitcoin.store.BlockStore;
 import com.google.bitcoin.store.MemoryBlockStore;
-import com.google.bitcoin.testing.FakeTxBuilder;
 import com.google.bitcoin.utils.BriefLogFormatter;
 
 import javax.annotation.Nullable;
@@ -45,7 +44,7 @@ public class TestWithWallet {
     protected ECKey myKey;
     protected Address myAddress;
     protected Wallet wallet;
-    protected BlockChain chain;
+    protected SPVBlockChain chain;
     protected BlockStore blockStore;
 
     public void setUp() throws Exception {
@@ -56,7 +55,7 @@ public class TestWithWallet {
         wallet = new Wallet(params);
         wallet.addKey(myKey);
         blockStore = new MemoryBlockStore(params);
-        chain = new BlockChain(params, wallet, blockStore);
+        chain = new SPVBlockChain(params, wallet, blockStore);
     }
 
     public void tearDown() throws Exception {

@@ -23,17 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>A BlockChain implements the <i>simplified payment verification</i> mode of the Bitcoin protocol. It is the right
+ * <p>A SPVBlockChain implements the <i>simplified payment verification</i> mode of the Bitcoin protocol. It is the right
  * choice to use for programs that have limited resources as it won't verify transactions signatures or attempt to store
- * all of the block chain. Really, this class should be called SPVBlockChain but for backwards compatibility it is not.
- * </p>
+ * all of the block chain.</p>
  */
-public class BlockChain extends AbstractBlockChain {
+public class SPVBlockChain extends AbstractBlockChain {
     /** Keeps a map of block hashes to StoredBlocks. */
     protected final BlockStore blockStore;
 
     /**
-     * <p>Constructs a BlockChain connected to the given wallet and store. To obtain a {@link Wallet} you can construct
+     * <p>Constructs a SPVBlockChain connected to the given wallet and store. To obtain a {@link Wallet} you can construct
      * one from scratch, or you can deserialize a saved wallet from disk using {@link Wallet#loadFromFile(java.io.File)}
      * </p>
      *
@@ -41,25 +40,25 @@ public class BlockChain extends AbstractBlockChain {
      * {@link com.google.bitcoin.store.MemoryBlockStore} if you want to hold all headers in RAM and don't care about
      * disk serialization (this is rare).</p>
      */
-    public BlockChain(NetworkParameters params, Wallet wallet, BlockStore blockStore) throws BlockStoreException {
+    public SPVBlockChain(NetworkParameters params, Wallet wallet, BlockStore blockStore) throws BlockStoreException {
         this(params, new ArrayList<BlockChainListener>(), blockStore);
         if (wallet != null)
             addWallet(wallet);
     }
 
     /**
-     * Constructs a BlockChain that has no wallet at all. This is helpful when you don't actually care about sending
+     * Constructs a SPVBlockChain that has no wallet at all. This is helpful when you don't actually care about sending
      * and receiving coins but rather, just want to explore the network data structures.
      */
-    public BlockChain(NetworkParameters params, BlockStore blockStore) throws BlockStoreException {
+    public SPVBlockChain(NetworkParameters params, BlockStore blockStore) throws BlockStoreException {
         this(params, new ArrayList<BlockChainListener>(), blockStore);
     }
 
     /**
-     * Constructs a BlockChain connected to the given list of listeners and a store.
+     * Constructs a SPVBlockChain connected to the given list of listeners and a store.
      */
-    public BlockChain(NetworkParameters params, List<BlockChainListener> wallets,
-                      BlockStore blockStore) throws BlockStoreException {
+    public SPVBlockChain(NetworkParameters params, List<BlockChainListener> wallets,
+                         BlockStore blockStore) throws BlockStoreException {
         super(params, wallets, blockStore);
         this.blockStore = blockStore;
     }

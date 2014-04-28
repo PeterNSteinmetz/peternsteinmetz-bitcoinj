@@ -80,7 +80,7 @@ public class PeerTest extends TestWithNetworkConnections {
         memoryPool = new MemoryPool();
         VersionMessage ver = new VersionMessage(unitTestParams, 100);
         InetSocketAddress address = new InetSocketAddress("127.0.0.1", 4000);
-        peer = new Peer(unitTestParams, ver, new PeerAddress(address), blockChain, memoryPool);
+        peer = new Peer(unitTestParams, ver, new PeerAddress(address), spvBlockChain, memoryPool);
         peer.addWallet(wallet);
     }
 
@@ -120,7 +120,7 @@ public class PeerTest extends TestWithNetworkConnections {
     public void chainDownloadEnd2End() throws Exception {
         // A full end-to-end test of the chain download process, with a new block being solved in the middle.
         Block b1 = createFakeBlock(blockStore).block;
-        blockChain.add(b1);
+        spvBlockChain.add(b1);
         Block b2 = makeSolvedTestBlock(b1);
         Block b3 = makeSolvedTestBlock(b2);
         Block b4 = makeSolvedTestBlock(b3);
@@ -196,7 +196,7 @@ public class PeerTest extends TestWithNetworkConnections {
         connect();
 
         Block b1 = createFakeBlock(blockStore).block;
-        blockChain.add(b1);
+        spvBlockChain.add(b1);
         // Make a missing block.
         Block b2 = makeSolvedTestBlock(b1);
         Block b3 = makeSolvedTestBlock(b2);
@@ -226,7 +226,7 @@ public class PeerTest extends TestWithNetworkConnections {
 
         // Make a missing block that we receive.
         Block b1 = createFakeBlock(blockStore).block;
-        blockChain.add(b1);
+        spvBlockChain.add(b1);
         Block b2 = makeSolvedTestBlock(b1);
 
         // Receive an inv.
@@ -268,7 +268,7 @@ public class PeerTest extends TestWithNetworkConnections {
         // Check co-ordination of which peer to download via the memory pool.
         VersionMessage ver = new VersionMessage(unitTestParams, 100);
         InetSocketAddress address = new InetSocketAddress("127.0.0.1", 4242);
-        Peer peer2 = new Peer(unitTestParams, ver, new PeerAddress(address), blockChain, memoryPool);
+        Peer peer2 = new Peer(unitTestParams, ver, new PeerAddress(address), spvBlockChain, memoryPool);
         peer2.addWallet(wallet);
         VersionMessage peerVersion = new VersionMessage(unitTestParams, OTHER_PEER_CHAIN_HEIGHT);
         peerVersion.clientVersion = 70001;
@@ -302,7 +302,7 @@ public class PeerTest extends TestWithNetworkConnections {
     @Test
     public void newBlock() throws Exception {
         Block b1 = createFakeBlock(blockStore).block;
-        blockChain.add(b1);
+        spvBlockChain.add(b1);
         final Block b2 = makeSolvedTestBlock(b1);
         // Receive notification of a new block.
         final InventoryMessage inv = new InventoryMessage(unitTestParams);
@@ -362,9 +362,9 @@ public class PeerTest extends TestWithNetworkConnections {
     @Test
     public void startBlockChainDownload() throws Exception {
         Block b1 = createFakeBlock(blockStore).block;
-        blockChain.add(b1);
+        spvBlockChain.add(b1);
         Block b2 = makeSolvedTestBlock(b1);
-        blockChain.add(b2);
+        spvBlockChain.add(b2);
 
         connect();
         fail.set(true);
@@ -392,7 +392,7 @@ public class PeerTest extends TestWithNetworkConnections {
         connect();
 
         Block b1 = createFakeBlock(blockStore).block;
-        blockChain.add(b1);
+        spvBlockChain.add(b1);
         Block b2 = makeSolvedTestBlock(b1);
         Block b3 = makeSolvedTestBlock(b2);
 
@@ -414,7 +414,7 @@ public class PeerTest extends TestWithNetworkConnections {
         connect();
 
         Block b1 = createFakeBlock(blockStore).block;
-        blockChain.add(b1);
+        spvBlockChain.add(b1);
         Block b2 = makeSolvedTestBlock(b1);
         Transaction t = new Transaction(unitTestParams);
         t.addInput(b1.getTransactions().get(0).getOutput(0));
@@ -441,7 +441,7 @@ public class PeerTest extends TestWithNetworkConnections {
         // Check that blocks before the fast catchup point are retrieved using getheaders, and after using getblocks.
         // This test is INCOMPLETE because it does not check we handle >2000 blocks correctly.
         Block b1 = createFakeBlock(blockStore).block;
-        blockChain.add(b1);
+        spvBlockChain.add(b1);
         Utils.rollMockClock(60 * 10);  // 10 minutes later.
         Block b2 = makeSolvedTestBlock(b1);
         Utils.rollMockClock(60 * 10);  // 10 minutes later.

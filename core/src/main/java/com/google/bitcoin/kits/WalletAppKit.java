@@ -42,7 +42,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * <p>Utility class that wraps the boilerplate needed to set up a new SPV bitcoinj app. Instantiate it with a directory
  * and file prefix, optionally configure a few things, then use start or startAndWait. The object will construct and
- * configure a {@link BlockChain}, {@link SPVBlockStore}, {@link Wallet} and {@link PeerGroup}. Depending on the value
+ * configure a {@link com.google.bitcoin.core.SPVBlockChain}, {@link SPVBlockStore}, {@link Wallet} and {@link PeerGroup}. Depending on the value
  * of the blockingStartup property, startup will be considered complete once the block chain has fully synchronized,
  * so it can take a while.</p>
  *
@@ -64,7 +64,7 @@ import static com.google.common.base.Preconditions.checkState;
 public class WalletAppKit extends AbstractIdleService {
     protected final String filePrefix;
     protected final NetworkParameters params;
-    protected volatile BlockChain vChain;
+    protected volatile SPVBlockChain vChain;
     protected volatile SPVBlockStore vStore;
     protected volatile Wallet vWallet;
     protected volatile PeerGroup vPeerGroup;
@@ -200,7 +200,7 @@ public class WalletAppKit extends AbstractIdleService {
             if (!chainFileExists && checkpoints != null) {
                 // Ugly hack! We have to create the wallet once here to learn the earliest key time, and then throw it
                 // away. The reason is that wallet extensions might need access to peergroups/chains/etc so we have to
-                // create the wallet later, but we need to know the time early here before we create the BlockChain
+                // create the wallet later, but we need to know the time early here before we create the SPVBlockChain
                 // object.
                 long time = Long.MAX_VALUE;
                 if (vWalletFile.exists()) {
@@ -211,7 +211,7 @@ public class WalletAppKit extends AbstractIdleService {
                 }
                 CheckpointManager.checkpoint(params, checkpoints, vStore, time);
             }
-            vChain = new BlockChain(params, vStore);
+            vChain = new SPVBlockChain(params, vStore);
             vPeerGroup = createPeerGroup();
             if (this.userAgent != null)
                 vPeerGroup.setUserAgent(userAgent, version);
@@ -315,7 +315,7 @@ public class WalletAppKit extends AbstractIdleService {
         return params;
     }
 
-    public BlockChain chain() {
+    public SPVBlockChain chain() {
         checkState(state() == State.STARTING || state() == State.RUNNING, "Cannot call until startup is complete");
         return vChain;
     }
