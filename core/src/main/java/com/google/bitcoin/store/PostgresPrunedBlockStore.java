@@ -35,7 +35,7 @@ import java.util.*;
  * so you can use {@link #calculateBalanceForAddress(com.google.bitcoin.core.Address)} to quickly look up
  * the quantity of bitcoins controlled by that address.</p>
  */
-public class PostgresPrunedBlockStore implements PrunedBlockStore {
+public class PostgresPrunedBlockStore extends AbstractSqlPrunedBlockStore {
     private static final Logger log = LoggerFactory.getLogger(PostgresPrunedBlockStore.class);
     private static final String POSTGRES_DUPLICATE_KEY_ERROR_CODE = "23505";
 
@@ -843,7 +843,8 @@ public class PostgresPrunedBlockStore implements PrunedBlockStore {
         }
     }
 
-    public void beginDatabaseBatchWrite() throws BlockStoreException {
+    @Override
+    public void beginBatchWrite() throws BlockStoreException {
 
         maybeConnect();
         if (log.isDebugEnabled())
@@ -857,7 +858,8 @@ public class PostgresPrunedBlockStore implements PrunedBlockStore {
         }
     }
 
-    public void commitDatabaseBatchWrite() throws BlockStoreException {
+    @Override
+    public void commitBatchWrite() throws BlockStoreException {
         maybeConnect();
 
         if (log.isDebugEnabled())
@@ -872,7 +874,8 @@ public class PostgresPrunedBlockStore implements PrunedBlockStore {
         }
     }
 
-    public void abortDatabaseBatchWrite() throws BlockStoreException {
+    @Override
+    public void abortBatchWrite() throws BlockStoreException {
 
         maybeConnect();
         if (log.isDebugEnabled())

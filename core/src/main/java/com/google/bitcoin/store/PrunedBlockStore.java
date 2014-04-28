@@ -48,7 +48,7 @@ import com.google.bitcoin.core.StoredTxOChanges;
  *
  * <p>FullPrunedBlockStores are thread safe.</p>
  */
-public interface PrunedBlockStore extends BlockStore {
+public interface PrunedBlockStore extends BatchableBlockStore {
     /**
      * <p>Saves the given {@link com.google.bitcoin.core.StoredTxOChanges} and {@link StoredBlock}. Calculates keys from the {@link StoredBlock}</p>
      * 
@@ -115,18 +115,4 @@ public interface PrunedBlockStore extends BlockStore {
      */
     void setVerifiedChainHead(StoredBlock chainHead) throws BlockStoreException;
     
-    /**
-     * <p>Begins/Commits/Aborts a database transaction.</p>
-     *
-     * <p>If abortDatabaseBatchWrite() is called by the same thread that called beginDatabaseBatchWrite(),
-     * any data writes between this call and abortDatabaseBatchWrite() made by the same thread
-     * should be discarded.</p>
-     *
-     * <p>Furthermore, any data written after a call to beginDatabaseBatchWrite() should not be readable
-     * by any other threads until commitDatabaseBatchWrite() has been called by this thread.
-     * Multiple calls to beginDatabaseBatchWrite() in any given thread should be ignored and treated as one call.</p>
-     */
-    void beginDatabaseBatchWrite() throws BlockStoreException;
-    void commitDatabaseBatchWrite() throws BlockStoreException;
-    void abortDatabaseBatchWrite() throws BlockStoreException;
 }

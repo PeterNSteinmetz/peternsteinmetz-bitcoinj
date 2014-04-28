@@ -343,19 +343,19 @@ public class MemoryPrunedBlockStore implements PrunedBlockStore {
             throw new BlockStoreException("Tried to remove a StoredTransactionOutput from MemoryPrunedBlockStore that it didn't have!");
     }
 
-    public synchronized void beginDatabaseBatchWrite() throws BlockStoreException {
+    public synchronized void beginBatchWrite() throws BlockStoreException {
         blockMap.beginDatabaseBatchWrite();
         fullBlockMap.BeginTransaction();
         transactionOutputMap.beginDatabaseBatchWrite();
     }
 
-    public synchronized void commitDatabaseBatchWrite() throws BlockStoreException {
+    public synchronized void commitBatchWrite() throws BlockStoreException {
         blockMap.commitDatabaseBatchWrite();
         fullBlockMap.CommitTransaction();
         transactionOutputMap.commitDatabaseBatchWrite();
     }
 
-    public synchronized void abortDatabaseBatchWrite() throws BlockStoreException {
+    public synchronized void abortBatchWrite() throws BlockStoreException {
         blockMap.abortDatabaseBatchWrite();
         fullBlockMap.AbortTransaction();
         transactionOutputMap.abortDatabaseBatchWrite();

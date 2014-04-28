@@ -39,7 +39,7 @@ import java.util.List;
  * H2 automatically frees some space at shutdown, so close()ing the database
  * decreases the space usage somewhat (to only around 1.3G).
  */
-public class H2PrunedBlockStore implements PrunedBlockStore {
+public class H2PrunedBlockStore extends AbstractSqlPrunedBlockStore {
     private static final Logger log = LoggerFactory.getLogger(H2PrunedBlockStore.class);
 
     private Sha256Hash chainHeadHash;
@@ -706,7 +706,8 @@ public class H2PrunedBlockStore implements PrunedBlockStore {
         }
     }
 
-    public void beginDatabaseBatchWrite() throws BlockStoreException {
+    @Override
+    public void beginBatchWrite() throws BlockStoreException {
         maybeConnect();
         try {
             conn.get().setAutoCommit(false);
@@ -715,7 +716,8 @@ public class H2PrunedBlockStore implements PrunedBlockStore {
         }
     }
 
-    public void commitDatabaseBatchWrite() throws BlockStoreException {
+    @Override
+    public void commitBatchWrite() throws BlockStoreException {
         maybeConnect();
         try {
             conn.get().commit();
@@ -725,7 +727,8 @@ public class H2PrunedBlockStore implements PrunedBlockStore {
         }
     }
 
-    public void abortDatabaseBatchWrite() throws BlockStoreException {
+    @Override
+    public void abortBatchWrite() throws BlockStoreException {
         maybeConnect();
         try {
             conn.get().rollback();
