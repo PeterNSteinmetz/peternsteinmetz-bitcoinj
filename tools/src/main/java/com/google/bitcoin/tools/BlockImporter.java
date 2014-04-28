@@ -44,7 +44,7 @@ public class BlockImporter {
         
         AbstractBlockChain chain = null;
         if (store instanceof FullPrunedBlockStore)
-            chain = new FullPrunedBlockChain(params, (FullPrunedBlockStore) store);
+            chain = new VerifiedBlockChain(params, (FullPrunedBlockStore) store);
         else
             chain = new BlockChain(params, store);
         

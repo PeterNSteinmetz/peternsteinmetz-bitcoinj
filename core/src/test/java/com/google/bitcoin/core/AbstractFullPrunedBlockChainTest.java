@@ -44,7 +44,7 @@ public abstract class AbstractFullPrunedBlockChainTest
     private static final Logger log = LoggerFactory.getLogger(AbstractFullPrunedBlockChainTest.class);
 
     private NetworkParameters params;
-    private FullPrunedBlockChain chain;
+    private VerifiedBlockChain chain;
     private FullPrunedBlockStore store;
 
     @Before
@@ -70,7 +70,7 @@ public abstract class AbstractFullPrunedBlockChainTest
         
         store = createStore(params, blockList.maximumReorgBlockCount);
         resetStore(store);
-        chain = new FullPrunedBlockChain(params, store);
+        chain = new VerifiedBlockChain(params, store);
 
         for (Rule rule : blockList.list) {
             if (!(rule instanceof BlockAndValidity))
@@ -113,7 +113,7 @@ public abstract class AbstractFullPrunedBlockChainTest
     public void skipScripts() throws Exception {
         store = createStore(params, 10);
         resetStore(store);
-        chain = new FullPrunedBlockChain(params, store);
+        chain = new VerifiedBlockChain(params, store);
 
         // Check that we aren't accidentally leaving any references
         // to the full StoredUndoableBlock's lying around (ie memory leaks)
@@ -150,7 +150,7 @@ public abstract class AbstractFullPrunedBlockChainTest
         final int UNDOABLE_BLOCKS_STORED = 10;
         store = createStore(params, UNDOABLE_BLOCKS_STORED);
         resetStore(store);
-        chain = new FullPrunedBlockChain(params, store);
+        chain = new VerifiedBlockChain(params, store);
         
         // Check that we aren't accidentally leaving any references
         // to the full StoredUndoableBlock's lying around (ie memory leaks)
@@ -208,7 +208,7 @@ public abstract class AbstractFullPrunedBlockChainTest
         
         store = createStore(params, 10);
         resetStore(store);
-        chain = new FullPrunedBlockChain(params, store);
+        chain = new VerifiedBlockChain(params, store);
         for (Block block : loader)
             chain.add(block);
     }

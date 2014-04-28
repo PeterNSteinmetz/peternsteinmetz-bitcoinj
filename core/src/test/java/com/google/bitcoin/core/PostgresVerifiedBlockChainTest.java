@@ -10,7 +10,7 @@ import org.junit.Test;
  * A Postgres implementation of the {@link AbstractFullPrunedBlockChainTest}
  */
 @Ignore("enable the postgres driver dependency in the maven POM")
-public class PostgresFullPrunedBlockChainTest extends AbstractFullPrunedBlockChainTest
+public class PostgresVerifiedBlockChainTest extends AbstractFullPrunedBlockChainTest
 {
     // Replace these with your postgres location/credentials and remove @Ignore to test
     private static final String DB_HOSTNAME = "localhost";

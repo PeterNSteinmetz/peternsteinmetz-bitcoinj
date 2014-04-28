@@ -7,7 +7,7 @@ import com.google.bitcoin.store.MemoryFullPrunedBlockStore;
 /**
  * A MemoryStore implementation of the FullPrunedBlockStoreTest
  */
-public class MemoryFullPrunedBlockChainTest extends AbstractFullPrunedBlockChainTest
+public class MemoryVerifiedBlockChainTest extends AbstractFullPrunedBlockChainTest
 {
     @Override
     public FullPrunedBlockStore createStore(NetworkParameters params, int blockCount) throws BlockStoreException

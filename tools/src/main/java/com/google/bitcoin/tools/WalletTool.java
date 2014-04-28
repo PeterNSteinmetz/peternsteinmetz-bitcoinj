@@ -688,7 +688,7 @@ public class WalletTool {
         } else if (mode == ValidationMode.FULL) {
             FullPrunedBlockStore s = new H2FullPrunedBlockStore(params, chainFileName.getAbsolutePath(), 5000);
             store = s;
-            chain = new FullPrunedBlockChain(params, wallet, s);
+            chain = new VerifiedBlockChain(params, wallet, s);
         }
         // This will ensure the wallet is saved when it changes.
         wallet.autosaveToFile(walletFile, 200, TimeUnit.MILLISECONDS, null);

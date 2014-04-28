@@ -42,7 +42,7 @@ public class BitcoindComparisonTool {
 
     private static NetworkParameters params;
     private static FullPrunedBlockStore store;
-    private static FullPrunedBlockChain chain;
+    private static VerifiedBlockChain chain;
     private static PeerGroup peers;
     private static Sha256Hash bitcoindChainHead;
     private static volatile Peer bitcoind;
@@ -66,7 +66,7 @@ public class BitcoindComparisonTool {
             store = new H2FullPrunedBlockStore(params, args.length > 0 ? args[0] : "BitcoindComparisonTool", blockList.maximumReorgBlockCount);
             ((H2FullPrunedBlockStore)store).resetStore();
             //store = new MemoryFullPrunedBlockStore(params, blockList.maximumReorgBlockCount);
-            chain = new FullPrunedBlockChain(params, store);
+            chain = new VerifiedBlockChain(params, store);
         } catch (BlockStoreException e) {
             e.printStackTrace();
             System.exit(1);

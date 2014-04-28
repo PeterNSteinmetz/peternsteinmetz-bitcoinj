@@ -54,7 +54,7 @@ import static com.google.common.base.Preconditions.*;
  *
  * <p>There are two subclasses of AbstractBlockChain that are useful: {@link BlockChain}, which is the simplest
  * class and implements <i>simplified payment verification</i>. This is a lightweight and efficient mode that does
- * not verify the contents of blocks, just their headers. A {@link FullPrunedBlockChain} paired with a
+ * not verify the contents of blocks, just their headers. A {@link VerifiedBlockChain} paired with a
  * {@link com.google.bitcoin.store.H2FullPrunedBlockStore} implements full verification, which is equivalent to the
  * original Satoshi client. To learn more about the alternative security models, please consult the articles on the
  * website.</p>
@@ -237,7 +237,7 @@ public abstract class AbstractBlockChain {
     
     /**
      * For a standard BlockChain, this should return blockStore.get(hash),
-     * for a FullPrunedBlockChain blockStore.getOnceUndoableStoredBlock(hash)
+     * for a VerifiedBlockChain blockStore.getOnceUndoableStoredBlock(hash)
      */
     protected abstract StoredBlock getStoredBlockInCurrentScope(Sha256Hash hash) throws BlockStoreException;
 
