@@ -1,8 +1,8 @@
 package com.google.bitcoin.core;
 
 import com.google.bitcoin.store.BlockStoreException;
-import com.google.bitcoin.store.FullPrunedBlockStore;
-import com.google.bitcoin.store.H2FullPrunedBlockStore;
+import com.google.bitcoin.store.PrunedBlockStore;
+import com.google.bitcoin.store.H2PrunedBlockStore;
 import org.junit.After;
 
 import java.io.File;
@@ -17,9 +17,9 @@ public class H2VerifiedBlockChainTest extends AbstractFullPrunedBlockChainTest {
     }
 
     @Override
-    public FullPrunedBlockStore createStore(NetworkParameters params, int blockCount) throws BlockStoreException {
+    public PrunedBlockStore createStore(NetworkParameters params, int blockCount) throws BlockStoreException {
         deleteFiles();
-        return new H2FullPrunedBlockStore(params, "test", blockCount);
+        return new H2PrunedBlockStore(params, "test", blockCount);
     }
 
     private void deleteFiles() {
@@ -32,7 +32,7 @@ public class H2VerifiedBlockChainTest extends AbstractFullPrunedBlockChainTest {
     }
 
     @Override
-    public void resetStore(FullPrunedBlockStore store) throws BlockStoreException {
-        ((H2FullPrunedBlockStore)store).resetStore();
+    public void resetStore(PrunedBlockStore store) throws BlockStoreException {
+        ((H2PrunedBlockStore)store).resetStore();
     }
 }

@@ -39,8 +39,8 @@ import java.util.List;
  * H2 automatically frees some space at shutdown, so close()ing the database
  * decreases the space usage somewhat (to only around 1.3G).
  */
-public class H2FullPrunedBlockStore implements FullPrunedBlockStore {
-    private static final Logger log = LoggerFactory.getLogger(H2FullPrunedBlockStore.class);
+public class H2PrunedBlockStore implements PrunedBlockStore {
+    private static final Logger log = LoggerFactory.getLogger(H2PrunedBlockStore.class);
 
     private Sha256Hash chainHeadHash;
     private StoredBlock chainHeadBlock;
@@ -87,13 +87,13 @@ public class H2FullPrunedBlockStore implements FullPrunedBlockStore {
         + ")";
 
     /**
-     * Creates a new H2FullPrunedBlockStore
+     * Creates a new H2PrunedBlockStore
      * @param params A copy of the NetworkParameters used
      * @param dbName The path to the database on disk
      * @param fullStoreDepth The number of blocks of history stored in full (something like 1000 is pretty safe)
      * @throws BlockStoreException if the database fails to open for any reason
      */
-    public H2FullPrunedBlockStore(NetworkParameters params, String dbName, int fullStoreDepth) throws BlockStoreException {
+    public H2PrunedBlockStore(NetworkParameters params, String dbName, int fullStoreDepth) throws BlockStoreException {
         this.params = params;
         this.fullStoreDepth = fullStoreDepth;
         // We choose a very lax timeout to avoid the database throwing exceptions on complex operations, as time is not
@@ -123,7 +123,7 @@ public class H2FullPrunedBlockStore implements FullPrunedBlockStore {
     }
     
     /**
-     * Creates a new H2FullPrunedBlockStore with the given cache size
+     * Creates a new H2PrunedBlockStore with the given cache size
      * @param params A copy of the NetworkParameters used
      * @param dbName The path to the database on disk
      * @param fullStoreDepth The number of blocks of history stored in full (something like 1000 is pretty safe)
@@ -132,7 +132,7 @@ public class H2FullPrunedBlockStore implements FullPrunedBlockStore {
      *                  and below 4MB sees a sharp drop in performance)
      * @throws BlockStoreException if the database fails to open for any reason
      */
-    public H2FullPrunedBlockStore(NetworkParameters params, String dbName, int fullStoreDepth, int cacheSize) throws BlockStoreException {
+    public H2PrunedBlockStore(NetworkParameters params, String dbName, int fullStoreDepth, int cacheSize) throws BlockStoreException {
         this(params, dbName, fullStoreDepth);
         
         try {
@@ -186,19 +186,19 @@ public class H2FullPrunedBlockStore implements FullPrunedBlockStore {
 
     private void createTables() throws SQLException, BlockStoreException {
         Statement s = conn.get().createStatement();
-        log.debug("H2FullPrunedBlockStore : CREATE headers table");
+        log.debug("H2PrunedBlockStore : CREATE headers table");
         s.executeUpdate(CREATE_HEADERS_TABLE);
 
-        log.debug("H2FullPrunedBlockStore : CREATE settings table");
+        log.debug("H2PrunedBlockStore : CREATE settings table");
         s.executeUpdate(CREATE_SETTINGS_TABLE);
         
-        log.debug("H2FullPrunedBlockStore : CREATE undoable block table");
+        log.debug("H2PrunedBlockStore : CREATE undoable block table");
         s.executeUpdate(CREATE_UNDOABLE_TABLE);
         
-        log.debug("H2FullPrunedBlockStore : CREATE undoable block index");
+        log.debug("H2PrunedBlockStore : CREATE undoable block index");
         s.executeUpdate(CREATE_UNDOABLE_TABLE_INDEX);
         
-        log.debug("H2FullPrunedBlockStore : CREATE open output table");
+        log.debug("H2PrunedBlockStore : CREATE open output table");
         s.executeUpdate(CREATE_OPEN_OUTPUT_TABLE);
 
         s.executeUpdate("INSERT INTO settings(name, value) VALUES('" + CHAIN_HEAD_SETTING + "', NULL)");
@@ -700,7 +700,7 @@ public class H2FullPrunedBlockStore implements FullPrunedBlockStore {
             int updateCount = s.getUpdateCount();
             s.close();
             if (updateCount == 0)
-                throw new BlockStoreException("Tried to remove a StoredTransactionOutput from H2FullPrunedBlockStore that it didn't have!");
+                throw new BlockStoreException("Tried to remove a StoredTransactionOutput from H2PrunedBlockStore that it didn't have!");
         } catch (SQLException e) {
             throw new BlockStoreException(e);
         }

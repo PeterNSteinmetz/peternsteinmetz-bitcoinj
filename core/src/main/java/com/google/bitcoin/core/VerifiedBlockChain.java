@@ -18,7 +18,7 @@ package com.google.bitcoin.core;
 
 import com.google.bitcoin.script.Script;
 import com.google.bitcoin.store.BlockStoreException;
-import com.google.bitcoin.store.FullPrunedBlockStore;
+import com.google.bitcoin.store.PrunedBlockStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ import java.util.concurrent.*;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * <p>A VerifiedBlockChain works in conjunction with a {@link FullPrunedBlockStore} to verify all the rules of the
+ * <p>A VerifiedBlockChain works in conjunction with a {@link com.google.bitcoin.store.PrunedBlockStore} to verify all the rules of the
  * Bitcoin system, with the downside being a larg cost in system resources. Fully verifying means all unspent transaction
  * outputs are stored. Once a transaction output is spent and that spend is buried deep enough, the data related to it
  * is deleted to ensure disk space usage doesn't grow forever. For this reason a pruning node cannot serve the full
@@ -44,7 +44,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
     private static final Logger log = LoggerFactory.getLogger(VerifiedBlockChain.class);
     
     /** Keeps a map of block hashes to StoredBlocks. */
-    protected final FullPrunedBlockStore blockStore;
+    protected final PrunedBlockStore blockStore;
 
     // Whether or not to execute scriptPubKeys before accepting a transaction (i.e. check signatures).
     private boolean runScripts = true;
@@ -53,7 +53,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
      * Constructs a SPVBlockChain connected to the given wallet and store. To obtain a {@link Wallet} you can construct
      * one from scratch, or you can deserialize a saved wallet from disk using {@link Wallet#loadFromFile(java.io.File)}
      */
-    public VerifiedBlockChain(NetworkParameters params, Wallet wallet, FullPrunedBlockStore blockStore) throws BlockStoreException {
+    public VerifiedBlockChain(NetworkParameters params, Wallet wallet, PrunedBlockStore blockStore) throws BlockStoreException {
         this(params, new ArrayList<BlockChainListener>(), blockStore);
         if (wallet != null)
             addWallet(wallet);
@@ -63,7 +63,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
      * Constructs a SPVBlockChain that has no wallet at all. This is helpful when you don't actually care about sending
      * and receiving coins but rather, just want to explore the network data structures.
      */
-    public VerifiedBlockChain(NetworkParameters params, FullPrunedBlockStore blockStore) throws BlockStoreException {
+    public VerifiedBlockChain(NetworkParameters params, PrunedBlockStore blockStore) throws BlockStoreException {
         this(params, new ArrayList<BlockChainListener>(), blockStore);
     }
 
@@ -71,7 +71,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
      * Constructs a SPVBlockChain connected to the given list of wallets and a store.
      */
     public VerifiedBlockChain(NetworkParameters params, List<BlockChainListener> listeners,
-                              FullPrunedBlockStore blockStore) throws BlockStoreException {
+                              PrunedBlockStore blockStore) throws BlockStoreException {
         super(params, listeners, blockStore);
         this.blockStore = blockStore;
         // Ignore upgrading for now

@@ -19,8 +19,8 @@ package com.google.bitcoin.core;
 
 import com.google.bitcoin.params.RegTestParams;
 import com.google.bitcoin.store.BlockStoreException;
-import com.google.bitcoin.store.FullPrunedBlockStore;
-import com.google.bitcoin.store.H2FullPrunedBlockStore;
+import com.google.bitcoin.store.PrunedBlockStore;
+import com.google.bitcoin.store.H2PrunedBlockStore;
 import com.google.bitcoin.utils.BlockFileLoader;
 import com.google.bitcoin.utils.BriefLogFormatter;
 import com.google.bitcoin.utils.Threading;
@@ -41,7 +41,7 @@ public class BitcoindComparisonTool {
     private static final Logger log = LoggerFactory.getLogger(BitcoindComparisonTool.class);
 
     private static NetworkParameters params;
-    private static FullPrunedBlockStore store;
+    private static PrunedBlockStore store;
     private static VerifiedBlockChain chain;
     private static PeerGroup peers;
     private static Sha256Hash bitcoindChainHead;
@@ -63,9 +63,9 @@ public class BitcoindComparisonTool {
         Iterator<Block> blocks = new BlockFileLoader(params, Arrays.asList(blockFile));
 
         try {
-            store = new H2FullPrunedBlockStore(params, args.length > 0 ? args[0] : "BitcoindComparisonTool", blockList.maximumReorgBlockCount);
-            ((H2FullPrunedBlockStore)store).resetStore();
-            //store = new MemoryFullPrunedBlockStore(params, blockList.maximumReorgBlockCount);
+            store = new H2PrunedBlockStore(params, args.length > 0 ? args[0] : "BitcoindComparisonTool", blockList.maximumReorgBlockCount);
+            ((H2PrunedBlockStore)store).resetStore();
+            //store = new MemoryPrunedBlockStore(params, blockList.maximumReorgBlockCount);
             chain = new VerifiedBlockChain(params, store);
         } catch (BlockStoreException e) {
             e.printStackTrace();

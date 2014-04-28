@@ -27,10 +27,10 @@ public class BlockImporter {
         BlockStore store;
         if (args[1].equals("H2")) {
             Preconditions.checkArgument(args.length == 3);
-            store = new H2FullPrunedBlockStore(params, args[2], 100);
+            store = new H2PrunedBlockStore(params, args[2], 100);
         } else if (args[1].equals("MemFull")) {
             Preconditions.checkArgument(args.length == 2);
-            store = new MemoryFullPrunedBlockStore(params, 100);
+            store = new MemoryPrunedBlockStore(params, 100);
         } else if (args[1].equals("Mem")) {
             Preconditions.checkArgument(args.length == 2);
             store = new MemoryBlockStore(params);
@@ -43,8 +43,8 @@ public class BlockImporter {
         }
         
         AbstractBlockChain chain = null;
-        if (store instanceof FullPrunedBlockStore)
-            chain = new VerifiedBlockChain(params, (FullPrunedBlockStore) store);
+        if (store instanceof PrunedBlockStore)
+            chain = new VerifiedBlockChain(params, (PrunedBlockStore) store);
         else
             chain = new SPVBlockChain(params, store);
         

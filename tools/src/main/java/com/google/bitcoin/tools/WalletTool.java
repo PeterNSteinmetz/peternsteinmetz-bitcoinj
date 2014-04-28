@@ -686,7 +686,7 @@ public class WalletTool {
             store = new SPVBlockStore(params, chainFileName);
             chain = new SPVBlockChain(params, wallet, store);
         } else if (mode == ValidationMode.FULL) {
-            FullPrunedBlockStore s = new H2FullPrunedBlockStore(params, chainFileName.getAbsolutePath(), 5000);
+            PrunedBlockStore s = new H2PrunedBlockStore(params, chainFileName.getAbsolutePath(), 5000);
             store = s;
             chain = new VerifiedBlockChain(params, wallet, s);
         }

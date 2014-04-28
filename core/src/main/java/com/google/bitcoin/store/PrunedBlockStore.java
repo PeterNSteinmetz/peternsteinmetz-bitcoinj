@@ -22,15 +22,15 @@ import com.google.bitcoin.core.StoredTransactionOutput;
 import com.google.bitcoin.core.StoredTxOChanges;
 
 /**
- * <p>An implementor of FullPrunedBlockStore saves StoredBlock objects to some storage mechanism.</p>
+ * <p>An implementor of PrunedBlockStore saves StoredBlock objects to some storage mechanism.</p>
  * 
  * <p>In addition to keeping tack of a chain using {@link StoredBlock}s, it should also keep track of a second
  * copy of the chain which holds {@link com.google.bitcoin.core.StoredTxOChanges}s. In this way, an application can perform a
  * headers-only initial sync and then use that information to more efficiently download a locally verified
  * full copy of the block chain.</p>
  * 
- * <p>A FullPrunedBlockStore should function well as a standard {@link BlockStore} and then be able to
- * trivially switch to being used as a FullPrunedBlockStore.</p>
+ * <p>A PrunedBlockStore should function well as a standard {@link BlockStore} and then be able to
+ * trivially switch to being used as a PrunedBlockStore.</p>
  * 
  * <p>It should store the {@link com.google.bitcoin.core.StoredTxOChanges}s of a number of recent blocks before verifiedHead.height and
  * all those after verifiedHead.height.
@@ -40,19 +40,19 @@ import com.google.bitcoin.core.StoredTxOChanges;
  * 
  * <p>It must store the {@link StoredBlock} of all blocks.</p>
  *
- * <p>A FullPrunedBlockStore contains a map of hashes to [Full]StoredBlock. The hash is the double digest of the
+ * <p>A PrunedBlockStore contains a map of hashes to [Full]StoredBlock. The hash is the double digest of the
  * Bitcoin serialization of the block header, <b>not</b> the header with the extra data as well.</p>
  * 
- * <p>A FullPrunedBlockStore also contains a map of hash+index to StoredTransactionOutput.  Again, the hash is
+ * <p>A PrunedBlockStore also contains a map of hash+index to StoredTransactionOutput.  Again, the hash is
  * a standard Bitcoin double-SHA256 hash of the transaction.</p>
  *
  * <p>FullPrunedBlockStores are thread safe.</p>
  */
-public interface FullPrunedBlockStore extends BlockStore {
+public interface PrunedBlockStore extends BlockStore {
     /**
      * <p>Saves the given {@link com.google.bitcoin.core.StoredTxOChanges} and {@link StoredBlock}. Calculates keys from the {@link StoredBlock}</p>
      * 
-     * <p>Though not required for proper function of a FullPrunedBlockStore, any user of a FullPrunedBlockStore should ensure
+     * <p>Though not required for proper function of a PrunedBlockStore, any user of a PrunedBlockStore should ensure
      * that a StoredTxOChanges for each block up to the fully verified chain head has been added to this block store using
      * this function (not put(StoredBlock)), so that the ability to perform reorgs is maintained.</p>
      * 
@@ -110,8 +110,8 @@ public interface FullPrunedBlockStore extends BlockStore {
      * 
      * If chainHead has a greater height than the non-verified chain head (ie that set with
      * {@link BlockStore.setChainHead}) the non-verified chain head should be set to the one set here.
-     * In this way a class using a FullPrunedBlockStore only in full-verification mode can ignore the regular
-     * {@link BlockStore} functions implemented as a part of a FullPrunedBlockStore.
+     * In this way a class using a PrunedBlockStore only in full-verification mode can ignore the regular
+     * {@link BlockStore} functions implemented as a part of a PrunedBlockStore.
      */
     void setVerifiedChainHead(StoredBlock chainHead) throws BlockStoreException;
     

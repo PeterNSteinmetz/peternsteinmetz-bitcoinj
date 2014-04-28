@@ -1,8 +1,8 @@
 package com.google.bitcoin.core;
 
 import com.google.bitcoin.store.BlockStoreException;
-import com.google.bitcoin.store.FullPrunedBlockStore;
-import com.google.bitcoin.store.MemoryFullPrunedBlockStore;
+import com.google.bitcoin.store.PrunedBlockStore;
+import com.google.bitcoin.store.MemoryPrunedBlockStore;
 
 /**
  * A MemoryStore implementation of the FullPrunedBlockStoreTest
@@ -10,13 +10,13 @@ import com.google.bitcoin.store.MemoryFullPrunedBlockStore;
 public class MemoryVerifiedBlockChainTest extends AbstractFullPrunedBlockChainTest
 {
     @Override
-    public FullPrunedBlockStore createStore(NetworkParameters params, int blockCount) throws BlockStoreException
+    public PrunedBlockStore createStore(NetworkParameters params, int blockCount) throws BlockStoreException
     {
-        return new MemoryFullPrunedBlockStore(params, blockCount);
+        return new MemoryPrunedBlockStore(params, blockCount);
     }
 
     @Override
-    public void resetStore(FullPrunedBlockStore store) throws BlockStoreException
+    public void resetStore(PrunedBlockStore store) throws BlockStoreException
     {
         //No-op for memory store, because it's not persistent
     }

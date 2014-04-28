@@ -1,8 +1,8 @@
 package com.google.bitcoin.core;
 
 import com.google.bitcoin.store.BlockStoreException;
-import com.google.bitcoin.store.FullPrunedBlockStore;
-import com.google.bitcoin.store.PostgresFullPrunedBlockStore;
+import com.google.bitcoin.store.PostgresPrunedBlockStore;
+import com.google.bitcoin.store.PrunedBlockStore;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -23,19 +23,19 @@ public class PostgresVerifiedBlockChainTest extends AbstractFullPrunedBlockChain
     private boolean useSchema = false;
 
     @Override
-    public FullPrunedBlockStore createStore(NetworkParameters params, int blockCount)
+    public PrunedBlockStore createStore(NetworkParameters params, int blockCount)
             throws BlockStoreException {
         if(useSchema) {
-            return new PostgresFullPrunedBlockStore(params, blockCount, DB_HOSTNAME, DB_NAME, DB_USERNAME, DB_PASSWORD, DB_SCHEMA);
+            return new PostgresPrunedBlockStore(params, blockCount, DB_HOSTNAME, DB_NAME, DB_USERNAME, DB_PASSWORD, DB_SCHEMA);
         }
         else {
-            return new PostgresFullPrunedBlockStore(params, blockCount, DB_HOSTNAME, DB_NAME, DB_USERNAME, DB_PASSWORD);
+            return new PostgresPrunedBlockStore(params, blockCount, DB_HOSTNAME, DB_NAME, DB_USERNAME, DB_PASSWORD);
         }
     }
 
     @Override
-    public void resetStore(FullPrunedBlockStore store) throws BlockStoreException {
-        ((PostgresFullPrunedBlockStore)store).resetStore();
+    public void resetStore(PrunedBlockStore store) throws BlockStoreException {
+        ((PostgresPrunedBlockStore)store).resetStore();
     }
 
     @Test

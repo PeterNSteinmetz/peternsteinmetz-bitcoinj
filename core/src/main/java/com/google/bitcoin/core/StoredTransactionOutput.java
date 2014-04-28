@@ -22,7 +22,7 @@ import java.math.BigInteger;
 /**
  * A StoredTransactionOutput message contains the information necessary to check a spending transaction.
  * It avoids having to store the entire parentTransaction just to get the hash and index.
- * Its only really useful for MemoryFullPrunedBlockStore, and should probably be moved there
+ * Its only really useful for MemoryPrunedBlockStore, and should probably be moved there
  */
 public class StoredTransactionOutput implements Serializable {
     private static final long serialVersionUID = -8744924157056340509L;

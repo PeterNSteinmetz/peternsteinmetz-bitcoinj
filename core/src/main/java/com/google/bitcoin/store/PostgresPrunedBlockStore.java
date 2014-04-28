@@ -35,8 +35,8 @@ import java.util.*;
  * so you can use {@link #calculateBalanceForAddress(com.google.bitcoin.core.Address)} to quickly look up
  * the quantity of bitcoins controlled by that address.</p>
  */
-public class PostgresFullPrunedBlockStore implements FullPrunedBlockStore {
-    private static final Logger log = LoggerFactory.getLogger(PostgresFullPrunedBlockStore.class);
+public class PostgresPrunedBlockStore implements PrunedBlockStore {
+    private static final Logger log = LoggerFactory.getLogger(PostgresPrunedBlockStore.class);
     private static final String POSTGRES_DUPLICATE_KEY_ERROR_CODE = "23505";
 
     private Sha256Hash chainHeadHash;
@@ -97,7 +97,7 @@ public class PostgresFullPrunedBlockStore implements FullPrunedBlockStore {
 
 
     /**
-     * Creates a new PostgresFullPrunedBlockStore.
+     * Creates a new PostgresPrunedBlockStore.
      *
      * @param params A copy of the NetworkParameters used
      * @param fullStoreDepth The number of blocks of history stored in full (something like 1000 is pretty safe)
@@ -107,13 +107,13 @@ public class PostgresFullPrunedBlockStore implements FullPrunedBlockStore {
      * @param password The password to the database
      * @throws BlockStoreException if the database fails to open for any reason
      */
-    public PostgresFullPrunedBlockStore(NetworkParameters params, int fullStoreDepth, String hostname, String dbName,
-                                        String username, String password) throws BlockStoreException {
+    public PostgresPrunedBlockStore(NetworkParameters params, int fullStoreDepth, String hostname, String dbName,
+                                    String username, String password) throws BlockStoreException {
         this(params, "jdbc:postgresql://" + hostname + "/" + dbName, fullStoreDepth, username, password, null);
     }
 
     /**
-     * <p>Create a new PostgresFullPrunedBlockStore, storing the tables in the schema specified.  You may want to
+     * <p>Create a new PostgresPrunedBlockStore, storing the tables in the schema specified.  You may want to
      * specify a schema to avoid name collisions, or just to keep the database better organized.  The schema is not
      * required, and if one is not provided than the default schema for the username will be used.  See
      * <a href="http://www.postgres.org/docs/9.3/static/ddl-schemas.html">the postgres schema docs</a> for more on
@@ -128,13 +128,13 @@ public class PostgresFullPrunedBlockStore implements FullPrunedBlockStore {
      * @param schemaName The name of the schema to put the tables in.  May be null if no schema is being used.
      * @throws BlockStoreException If the database fails to open for any reason.
      */
-    public PostgresFullPrunedBlockStore(NetworkParameters params, int fullStoreDepth, String hostname, String dbName,
-                                        String username, String password, @Nullable String schemaName) throws BlockStoreException {
+    public PostgresPrunedBlockStore(NetworkParameters params, int fullStoreDepth, String hostname, String dbName,
+                                    String username, String password, @Nullable String schemaName) throws BlockStoreException {
         this(params, "jdbc:postgresql://" + hostname + "/" + dbName, fullStoreDepth, username, password, schemaName);
     }
 
     /**
-     * <p>Create a new PostgresFullPrunedBlockStore, using the full connection URL instead of a hostname and password,
+     * <p>Create a new PostgresPrunedBlockStore, using the full connection URL instead of a hostname and password,
      * and optionally allowing a schema to be specified.</p>
      *
      * <p>The connection URL will be passed to the database driver, and should look like
@@ -156,8 +156,8 @@ public class PostgresFullPrunedBlockStore implements FullPrunedBlockStore {
      * @param schemaName The name of the schema to put the tables in.  May be null if no schema is being used.
      * @throws BlockStoreException If the database fails to open for any reason.
      */
-    public PostgresFullPrunedBlockStore(NetworkParameters params, String connectionURL, int fullStoreDepth,
-                                        String username, String password, @Nullable String schemaName) throws BlockStoreException {
+    public PostgresPrunedBlockStore(NetworkParameters params, String connectionURL, int fullStoreDepth,
+                                    String username, String password, @Nullable String schemaName) throws BlockStoreException {
         this.params = params;
         this.fullStoreDepth = fullStoreDepth;
         this.connectionURL = connectionURL;
@@ -247,22 +247,22 @@ public class PostgresFullPrunedBlockStore implements FullPrunedBlockStore {
     private void createTables() throws SQLException, BlockStoreException {
         Statement s = conn.get().createStatement();
         if (log.isDebugEnabled())
-            log.debug("PostgresFullPrunedBlockStore : CREATE headers table");
+            log.debug("PostgresPrunedBlockStore : CREATE headers table");
         s.executeUpdate(CREATE_HEADERS_TABLE);
 
         if (log.isDebugEnabled())
-            log.debug("PostgresFullPrunedBlockStore : CREATE settings table");
+            log.debug("PostgresPrunedBlockStore : CREATE settings table");
         s.executeUpdate(CREATE_SETTINGS_TABLE);
 
         if (log.isDebugEnabled())
-            log.debug("PostgresFullPrunedBlockStore : CREATE undoable block table");
+            log.debug("PostgresPrunedBlockStore : CREATE undoable block table");
         s.executeUpdate(CREATE_UNDOABLE_TABLE);
 
         if (log.isDebugEnabled())
-            log.debug("PostgresFullPrunedBlockStore : CREATE undoable block index");
+            log.debug("PostgresPrunedBlockStore : CREATE undoable block index");
         s.executeUpdate(CREATE_UNDOABLE_TABLE_INDEX);
         if (log.isDebugEnabled())
-            log.debug("PostgresFullPrunedBlockStore : CREATE open output table");
+            log.debug("PostgresPrunedBlockStore : CREATE open output table");
         s.executeUpdate(CREATE_OPEN_OUTPUT_TABLE);
 
         // Create indexes..
@@ -829,7 +829,7 @@ public class PostgresFullPrunedBlockStore implements FullPrunedBlockStore {
         maybeConnect();
         // TODO: This should only need one query (maybe a stored procedure)
         if (getTransactionOutput(out.getHash(), out.getIndex()) == null)
-            throw new BlockStoreException("Tried to remove a StoredTransactionOutput from PostgresFullPrunedBlockStore that it didn't have!");
+            throw new BlockStoreException("Tried to remove a StoredTransactionOutput from PostgresPrunedBlockStore that it didn't have!");
         try {
             PreparedStatement s = conn.get()
                     .prepareStatement("DELETE FROM openOutputs WHERE hash = ? AND index = ?");

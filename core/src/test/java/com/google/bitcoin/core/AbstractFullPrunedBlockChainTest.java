@@ -21,7 +21,7 @@ import com.google.bitcoin.params.MainNetParams;
 import com.google.bitcoin.params.UnitTestParams;
 import com.google.bitcoin.script.Script;
 import com.google.bitcoin.store.BlockStoreException;
-import com.google.bitcoin.store.FullPrunedBlockStore;
+import com.google.bitcoin.store.PrunedBlockStore;
 import com.google.bitcoin.utils.BlockFileLoader;
 import com.google.bitcoin.utils.BriefLogFormatter;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public abstract class AbstractFullPrunedBlockChainTest
 
     private NetworkParameters params;
     private VerifiedBlockChain chain;
-    private FullPrunedBlockStore store;
+    private PrunedBlockStore store;
 
     @Before
     public void setUp() throws Exception {
@@ -57,10 +57,10 @@ public abstract class AbstractFullPrunedBlockChainTest
         };
     }
 
-    public abstract FullPrunedBlockStore createStore(NetworkParameters params, int blockCount)
+    public abstract PrunedBlockStore createStore(NetworkParameters params, int blockCount)
         throws BlockStoreException;
 
-    public abstract void resetStore(FullPrunedBlockStore store) throws BlockStoreException;
+    public abstract void resetStore(PrunedBlockStore store) throws BlockStoreException;
 
     @Test
     public void testGeneratedChain() throws Exception {

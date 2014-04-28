@@ -18,7 +18,7 @@ package com.google.bitcoin.core;
 
 import com.google.bitcoin.store.BlockStore;
 import com.google.bitcoin.store.BlockStoreException;
-import com.google.bitcoin.store.FullPrunedBlockStore;
+import com.google.bitcoin.store.PrunedBlockStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,7 +152,7 @@ public class CheckpointManager {
             throws IOException, BlockStoreException {
         checkNotNull(params);
         checkNotNull(store);
-        checkArgument(!(store instanceof FullPrunedBlockStore), "You cannot use checkpointing with a full store.");
+        checkArgument(!(store instanceof PrunedBlockStore), "You cannot use checkpointing with a full store.");
 
         time -= 86400 * 7;
 
