@@ -82,7 +82,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
     protected StoredBlock addToBlockStore(StoredBlock storedPrev, Block header, TransactionOutputChanges txOutChanges)
             throws BlockStoreException, VerificationException {
         StoredBlock newBlock = storedPrev.build(header);
-        blockStore.put(newBlock, new StoredUndoableBlock(newBlock.getHeader().getHash(), txOutChanges));
+        blockStore.put(newBlock, new StoredTxOChanges(newBlock.getHeader().getHash(), txOutChanges));
         return newBlock;
     }
     
@@ -90,7 +90,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
     protected StoredBlock addToBlockStore(StoredBlock storedPrev, Block block)
             throws BlockStoreException, VerificationException {
         StoredBlock newBlock = storedPrev.build(block);
-        blockStore.put(newBlock, new StoredUndoableBlock(newBlock.getHeader().getHash(), block.transactions));
+        blockStore.put(newBlock, new StoredTxOChanges(newBlock.getHeader().getHash(), block.transactions));
         return newBlock;
     }
 
@@ -279,7 +279,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
             throw new VerificationException("Block failed checkpoint lockin at " + newBlock.getHeight());
         
         blockStore.beginDatabaseBatchWrite();
-        StoredUndoableBlock block = blockStore.getUndoBlock(newBlock.getHeader().getHash());
+        StoredTxOChanges block = blockStore.getUndoBlock(newBlock.getHeader().getHash());
         if (block == null) {
             // We're trying to re-org too deep and the data needed has been deleted.
             blockStore.abortDatabaseBatchWrite();
@@ -414,7 +414,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
         checkState(lock.isHeldByCurrentThread());
         blockStore.beginDatabaseBatchWrite();
         try {
-            StoredUndoableBlock undoBlock = blockStore.getUndoBlock(oldBlock.getHeader().getHash());
+            StoredTxOChanges undoBlock = blockStore.getUndoBlock(oldBlock.getHeader().getHash());
             if (undoBlock == null) throw new PrunedException(oldBlock.getHeader().getHash());
             TransactionOutputChanges txOutChanges = undoBlock.getTxOutChanges();
             for(StoredTransactionOutput out : txOutChanges.txOutsSpent)

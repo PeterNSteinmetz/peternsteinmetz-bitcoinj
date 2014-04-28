@@ -19,22 +19,22 @@ package com.google.bitcoin.store;
 import com.google.bitcoin.core.Sha256Hash;
 import com.google.bitcoin.core.StoredBlock;
 import com.google.bitcoin.core.StoredTransactionOutput;
-import com.google.bitcoin.core.StoredUndoableBlock;
+import com.google.bitcoin.core.StoredTxOChanges;
 
 /**
  * <p>An implementor of FullPrunedBlockStore saves StoredBlock objects to some storage mechanism.</p>
  * 
  * <p>In addition to keeping tack of a chain using {@link StoredBlock}s, it should also keep track of a second
- * copy of the chain which holds {@link StoredUndoableBlock}s. In this way, an application can perform a
+ * copy of the chain which holds {@link com.google.bitcoin.core.StoredTxOChanges}s. In this way, an application can perform a
  * headers-only initial sync and then use that information to more efficiently download a locally verified
  * full copy of the block chain.</p>
  * 
  * <p>A FullPrunedBlockStore should function well as a standard {@link BlockStore} and then be able to
  * trivially switch to being used as a FullPrunedBlockStore.</p>
  * 
- * <p>It should store the {@link StoredUndoableBlock}s of a number of recent blocks before verifiedHead.height and
+ * <p>It should store the {@link com.google.bitcoin.core.StoredTxOChanges}s of a number of recent blocks before verifiedHead.height and
  * all those after verifiedHead.height.
- * It is advisable to store any {@link StoredUndoableBlock} which has a height > verifiedHead.height - N.
+ * It is advisable to store any {@link com.google.bitcoin.core.StoredTxOChanges} which has a height > verifiedHead.height - N.
  * Because N determines the memory usage, it is recommended that N be customizable. N should be chosen such that
  * re-orgs beyond that point are vanishingly unlikely, for example, a few thousand blocks is a reasonable choice.</p>
  * 
@@ -50,28 +50,28 @@ import com.google.bitcoin.core.StoredUndoableBlock;
  */
 public interface FullPrunedBlockStore extends BlockStore {
     /**
-     * <p>Saves the given {@link StoredUndoableBlock} and {@link StoredBlock}. Calculates keys from the {@link StoredBlock}</p>
+     * <p>Saves the given {@link com.google.bitcoin.core.StoredTxOChanges} and {@link StoredBlock}. Calculates keys from the {@link StoredBlock}</p>
      * 
      * <p>Though not required for proper function of a FullPrunedBlockStore, any user of a FullPrunedBlockStore should ensure
-     * that a StoredUndoableBlock for each block up to the fully verified chain head has been added to this block store using
+     * that a StoredTxOChanges for each block up to the fully verified chain head has been added to this block store using
      * this function (not put(StoredBlock)), so that the ability to perform reorgs is maintained.</p>
      * 
      * @throws BlockStoreException if there is a problem with the underlying storage layer, such as running out of disk space.
      */
-    void put(StoredBlock storedBlock, StoredUndoableBlock undoableBlock) throws BlockStoreException;
+    void put(StoredBlock storedBlock, StoredTxOChanges undoableBlock) throws BlockStoreException;
     
     /**
-     * Returns the StoredBlock that was added as a StoredUndoableBlock given a hash. The returned values block.getHash()
+     * Returns the StoredBlock that was added as a StoredTxOChanges given a hash. The returned values block.getHash()
      * method will be equal to the parameter. If no such block is found, returns null.
      */
     StoredBlock getOnceUndoableStoredBlock(Sha256Hash hash) throws BlockStoreException;
 
     /**
-     * Returns a {@link StoredUndoableBlock} whose block.getHash() method will be equal to the parameter. If no such
+     * Returns a {@link com.google.bitcoin.core.StoredTxOChanges} whose block.getHash() method will be equal to the parameter. If no such
      * block is found, returns null. Note that this may return null more often than get(Sha256Hash hash) as not all
-     * {@link StoredBlock}s have a {@link StoredUndoableBlock} copy stored as well.
+     * {@link StoredBlock}s have a {@link com.google.bitcoin.core.StoredTxOChanges} copy stored as well.
      */
-    StoredUndoableBlock getUndoBlock(Sha256Hash hash) throws BlockStoreException;
+    StoredTxOChanges getUndoBlock(Sha256Hash hash) throws BlockStoreException;
     
     /**
      * Gets a {@link StoredTransactionOutput} with the given hash and index, or null if none is found

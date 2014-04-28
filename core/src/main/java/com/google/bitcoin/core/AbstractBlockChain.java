@@ -314,7 +314,7 @@ public abstract class AbstractBlockChain {
      * Load newBlock from BlockStore and connect its transactions, returning changes to the set of unspent transactions.
      * If an error is encountered in a transaction, no changes should be made to the underlying BlockStore.
      * Only called if(shouldVerifyTransactions())
-     * @throws PrunedException if newBlock does not exist as a {@link StoredUndoableBlock} in the block store.
+     * @throws PrunedException if newBlock does not exist as a {@link StoredTxOChanges} in the block store.
      * @throws VerificationException if an attempt was made to spend an already-spent output, or if a transaction incorrectly solved an output script.
      * @throws BlockStoreException if the block store had an underlying error or newBlock does not exist in the block store at all.
      * @return The full set of all changes made to the set of open transaction outputs.
@@ -584,7 +584,7 @@ public abstract class AbstractBlockChain {
     /**
      * Disconnect each transaction in the block (after reading it from the block store)
      * Only called if(shouldVerifyTransactions())
-     * @throws PrunedException if block does not exist as a {@link StoredUndoableBlock} in the block store.
+     * @throws PrunedException if block does not exist as a {@link StoredTxOChanges} in the block store.
      * @throws BlockStoreException if the block store had an underlying error or block does not exist in the block store at all.
      */
     protected abstract void disconnectTransactions(StoredBlock block) throws PrunedException, BlockStoreException;

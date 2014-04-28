@@ -219,7 +219,7 @@ class TransactionalMultiKeyHashMap<UniqueKeyType, MultiKeyType, ValueType> {
 }
 
 /**
- * Keeps {@link StoredBlock}s, {@link StoredUndoableBlock}s and {@link StoredTransactionOutput}s in memory.
+ * Keeps {@link StoredBlock}s, {@link com.google.bitcoin.core.StoredTxOChanges}s and {@link StoredTransactionOutput}s in memory.
  * Used primarily for unit testing.
  */
 public class MemoryFullPrunedBlockStore implements FullPrunedBlockStore {
@@ -229,7 +229,7 @@ public class MemoryFullPrunedBlockStore implements FullPrunedBlockStore {
         public StoredBlockAndWasUndoableFlag(StoredBlock block, boolean wasUndoable) { this.block = block; this.wasUndoable = wasUndoable; }
     }
     private TransactionalHashMap<Sha256Hash, StoredBlockAndWasUndoableFlag> blockMap;
-    private TransactionalMultiKeyHashMap<Sha256Hash, Integer, StoredUndoableBlock> fullBlockMap;
+    private TransactionalMultiKeyHashMap<Sha256Hash, Integer, StoredTxOChanges> fullBlockMap;
     //TODO: Use something more suited to remove-heavy use?
     private TransactionalHashMap<StoredTransactionOutPoint, StoredTransactionOutput> transactionOutputMap;
     private StoredBlock chainHead;
@@ -243,7 +243,7 @@ public class MemoryFullPrunedBlockStore implements FullPrunedBlockStore {
      */
     public MemoryFullPrunedBlockStore(NetworkParameters params, int fullStoreDepth) {
         blockMap = new TransactionalHashMap<Sha256Hash, StoredBlockAndWasUndoableFlag>();
-        fullBlockMap = new TransactionalMultiKeyHashMap<Sha256Hash, Integer, StoredUndoableBlock>();
+        fullBlockMap = new TransactionalMultiKeyHashMap<Sha256Hash, Integer, StoredTxOChanges>();
         transactionOutputMap = new TransactionalHashMap<StoredTransactionOutPoint, StoredTransactionOutput>();
         this.fullStoreDepth = fullStoreDepth > 0 ? fullStoreDepth : 1;
         // Insert the genesis block.
@@ -251,7 +251,7 @@ public class MemoryFullPrunedBlockStore implements FullPrunedBlockStore {
             StoredBlock storedGenesisHeader = new StoredBlock(params.getGenesisBlock().cloneAsHeader(), params.getGenesisBlock().getWork(), 0);
             // The coinbase in the genesis block is not spendable
             List<Transaction> genesisTransactions = Lists.newLinkedList();
-            StoredUndoableBlock storedGenesis = new StoredUndoableBlock(params.getGenesisBlock().getHash(), genesisTransactions);
+            StoredTxOChanges storedGenesis = new StoredTxOChanges(params.getGenesisBlock().getHash(), genesisTransactions);
             put(storedGenesisHeader, storedGenesis);
             setChainHead(storedGenesisHeader);
             setVerifiedChainHead(storedGenesisHeader);
@@ -268,7 +268,7 @@ public class MemoryFullPrunedBlockStore implements FullPrunedBlockStore {
         blockMap.put(hash, new StoredBlockAndWasUndoableFlag(block, false));
     }
     
-    public synchronized void put(StoredBlock storedBlock, StoredUndoableBlock undoableBlock) throws BlockStoreException {
+    public synchronized void put(StoredBlock storedBlock, StoredTxOChanges undoableBlock) throws BlockStoreException {
         Preconditions.checkNotNull(blockMap, "MemoryFullPrunedBlockStore is closed");
         Sha256Hash hash = storedBlock.getHeader().getHash();
         fullBlockMap.put(hash, storedBlock.getHeight(), undoableBlock);
@@ -290,7 +290,7 @@ public class MemoryFullPrunedBlockStore implements FullPrunedBlockStore {
     }
     
     @Nullable
-    public synchronized StoredUndoableBlock getUndoBlock(Sha256Hash hash) throws BlockStoreException {
+    public synchronized StoredTxOChanges getUndoBlock(Sha256Hash hash) throws BlockStoreException {
         Preconditions.checkNotNull(fullBlockMap, "MemoryFullPrunedBlockStore is closed");
         return fullBlockMap.get(hash);
     }

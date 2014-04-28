@@ -319,7 +319,7 @@ public class PostgresFullPrunedBlockStore implements FullPrunedBlockStore {
             // The coinbase in the genesis block is not spendable. This is because of how the reference client inits
             // its database - the genesis transaction isn't actually in the db so its spent flags can never be updated.
             List<Transaction> genesisTransactions = Lists.newLinkedList();
-            StoredUndoableBlock storedGenesis = new StoredUndoableBlock(params.getGenesisBlock().getHash(), genesisTransactions);
+            StoredTxOChanges storedGenesis = new StoredTxOChanges(params.getGenesisBlock().getHash(), genesisTransactions);
             put(storedGenesisHeader, storedGenesis);
             setChainHead(storedGenesisHeader);
             setVerifiedChainHead(storedGenesisHeader);
@@ -454,7 +454,7 @@ public class PostgresFullPrunedBlockStore implements FullPrunedBlockStore {
         }
     }
 
-    public void put(StoredBlock storedBlock, StoredUndoableBlock undoableBlock) throws BlockStoreException {
+    public void put(StoredBlock storedBlock, StoredTxOChanges undoableBlock) throws BlockStoreException {
         maybeConnect();
         // We skip the first 4 bytes because (on prodnet) the minimum target has 4 0-bytes
         byte[] hashBytes = new byte[28];
@@ -606,7 +606,7 @@ public class PostgresFullPrunedBlockStore implements FullPrunedBlockStore {
         return get(hash, true);
     }
 
-    public StoredUndoableBlock getUndoBlock(Sha256Hash hash) throws BlockStoreException {
+    public StoredTxOChanges getUndoBlock(Sha256Hash hash) throws BlockStoreException {
         maybeConnect();
         PreparedStatement s = null;
         try {
@@ -624,7 +624,7 @@ public class PostgresFullPrunedBlockStore implements FullPrunedBlockStore {
             // Parse it.
             byte[] txOutChanges = results.getBytes(1);
             byte[] transactions = results.getBytes(2);
-            StoredUndoableBlock block;
+            StoredTxOChanges block;
             if (txOutChanges == null) {
                 int offset = 0;
                 int numTxn = ((transactions[offset++] & 0xFF) << 0) |
@@ -637,11 +637,11 @@ public class PostgresFullPrunedBlockStore implements FullPrunedBlockStore {
                     transactionList.add(tx);
                     offset += tx.getMessageSize();
                 }
-                block = new StoredUndoableBlock(hash, transactionList);
+                block = new StoredTxOChanges(hash, transactionList);
             } else {
                 TransactionOutputChanges outChangesObject =
                         new TransactionOutputChanges(new ByteArrayInputStream(txOutChanges));
-                block = new StoredUndoableBlock(hash, outChangesObject);
+                block = new StoredTxOChanges(hash, outChangesObject);
             }
             return block;
         } catch (SQLException ex) {

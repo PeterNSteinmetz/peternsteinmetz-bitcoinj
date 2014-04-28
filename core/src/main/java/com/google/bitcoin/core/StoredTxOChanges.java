@@ -21,13 +21,15 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Contains minimal data neccessary to disconnect/connect the transactions
+ * Contains minimal data necessary to disconnect/connect the transactions
  * in the stored block at will.  Can either store the full set of
  * transactions (if the inputs for the block have not been tested to work)
  * or the set of transaction outputs created/destroyed when the block is
  * connected.
+ *
+ * :TODO: remove transactions as those can be present in the Block itself.
  */
-public class StoredUndoableBlock implements Serializable {
+public class StoredTxOChanges implements Serializable {
     private static final long serialVersionUID = 5127353027086786117L;
     
     Sha256Hash blockHash;
@@ -36,13 +38,13 @@ public class StoredUndoableBlock implements Serializable {
     private TransactionOutputChanges txOutChanges;
     private List<Transaction> transactions;
     
-    public StoredUndoableBlock(Sha256Hash hash, TransactionOutputChanges txOutChanges) {
+    public StoredTxOChanges(Sha256Hash hash, TransactionOutputChanges txOutChanges) {
         this.blockHash = hash;
         this.transactions = null;
         this.txOutChanges = txOutChanges;
     }
     
-    public StoredUndoableBlock(Sha256Hash hash, List<Transaction> transactions) {
+    public StoredTxOChanges(Sha256Hash hash, List<Transaction> transactions) {
         this.blockHash = hash;
         this.txOutChanges = null;
         this.transactions = transactions;
@@ -76,8 +78,8 @@ public class StoredUndoableBlock implements Serializable {
     }
     
     public boolean equals(Object o) {
-        if (!(o instanceof StoredUndoableBlock)) return false;
-        return ((StoredUndoableBlock)o).getHash().equals(this.getHash());
+        if (!(o instanceof StoredTxOChanges)) return false;
+        return ((StoredTxOChanges)o).getHash().equals(this.getHash());
     }
 
     @Override

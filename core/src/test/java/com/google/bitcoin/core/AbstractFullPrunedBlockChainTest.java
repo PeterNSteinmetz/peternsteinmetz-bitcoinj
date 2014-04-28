@@ -116,7 +116,7 @@ public abstract class AbstractFullPrunedBlockChainTest
         chain = new VerifiedBlockChain(params, store);
 
         // Check that we aren't accidentally leaving any references
-        // to the full StoredUndoableBlock's lying around (ie memory leaks)
+        // to the full StoredTxOChanges's lying around (ie memory leaks)
 
         ECKey outKey = new ECKey();
 
@@ -153,7 +153,7 @@ public abstract class AbstractFullPrunedBlockChainTest
         chain = new VerifiedBlockChain(params, store);
         
         // Check that we aren't accidentally leaving any references
-        // to the full StoredUndoableBlock's lying around (ie memory leaks)
+        // to the full StoredTxOChanges's lying around (ie memory leaks)
         
         ECKey outKey = new ECKey();
         
@@ -179,14 +179,14 @@ public abstract class AbstractFullPrunedBlockChainTest
         rollingBlock.solve();
         
         chain.add(rollingBlock);
-        WeakReference<StoredUndoableBlock> undoBlock = new WeakReference<StoredUndoableBlock>(store.getUndoBlock(rollingBlock.getHash()));
+        WeakReference<StoredTxOChanges> undoBlock = new WeakReference<StoredTxOChanges>(store.getUndoBlock(rollingBlock.getHash()));
 
-        StoredUndoableBlock storedUndoableBlock = undoBlock.get();
-        assertNotNull(storedUndoableBlock);
-        assertNull(storedUndoableBlock.getTransactions());
-        WeakReference<TransactionOutputChanges> changes = new WeakReference<TransactionOutputChanges>(storedUndoableBlock.getTxOutChanges());
+        StoredTxOChanges storedTxOChanges = undoBlock.get();
+        assertNotNull(storedTxOChanges);
+        assertNull(storedTxOChanges.getTransactions());
+        WeakReference<TransactionOutputChanges> changes = new WeakReference<TransactionOutputChanges>(storedTxOChanges.getTxOutChanges());
         assertNotNull(changes.get());
-        storedUndoableBlock = null;   // Blank the reference so it can be GCd.
+        storedTxOChanges = null;   // Blank the reference so it can be GCd.
         
         // Create a chain longer than UNDOABLE_BLOCKS_STORED
         for (int i = 0; i < UNDOABLE_BLOCKS_STORED; i++) {
