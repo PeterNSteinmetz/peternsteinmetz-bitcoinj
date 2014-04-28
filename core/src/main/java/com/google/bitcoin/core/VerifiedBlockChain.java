@@ -149,7 +149,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
         if (!params.passesCheckpoint(height, block.getHash()))
             throw new VerificationException("Block failed checkpoint lockin at " + height);
 
-        blockStore.beginDatabaseBatchWrite();
+        blockStore.beginBatchWrite();
 
         LinkedList<StoredTransactionOutput> txOutsSpent = new LinkedList<StoredTransactionOutput>();
         LinkedList<StoredTransactionOutput> txOutsCreated = new LinkedList<StoredTransactionOutput>();  
@@ -258,11 +258,11 @@ public class VerifiedBlockChain extends AbstractBlockChain {
             }
         } catch (VerificationException e) {
             scriptVerificationExecutor.shutdownNow();
-            blockStore.abortDatabaseBatchWrite();
+            blockStore.abortBatchWrite();
             throw e;
         } catch (BlockStoreException e) {
             scriptVerificationExecutor.shutdownNow();
-            blockStore.abortDatabaseBatchWrite();
+            blockStore.abortBatchWrite();
             throw e;
         }
         return new TransactionOutputChanges(txOutsCreated, txOutsSpent);
@@ -278,11 +278,11 @@ public class VerifiedBlockChain extends AbstractBlockChain {
         if (!params.passesCheckpoint(newBlock.getHeight(), newBlock.getHeader().getHash()))
             throw new VerificationException("Block failed checkpoint lockin at " + newBlock.getHeight());
         
-        blockStore.beginDatabaseBatchWrite();
+        blockStore.beginBatchWrite();
         StoredTxOChanges block = blockStore.getUndoBlock(newBlock.getHeader().getHash());
         if (block == null) {
             // We're trying to re-org too deep and the data needed has been deleted.
-            blockStore.abortDatabaseBatchWrite();
+            blockStore.abortBatchWrite();
             throw new PrunedException(newBlock.getHeader().getHash());
         }
         TransactionOutputChanges txOutChanges;
@@ -395,11 +395,11 @@ public class VerifiedBlockChain extends AbstractBlockChain {
             }
         } catch (VerificationException e) {
             scriptVerificationExecutor.shutdownNow();
-            blockStore.abortDatabaseBatchWrite();
+            blockStore.abortBatchWrite();
             throw e;
         } catch (BlockStoreException e) {
             scriptVerificationExecutor.shutdownNow();
-            blockStore.abortDatabaseBatchWrite();
+            blockStore.abortBatchWrite();
             throw e;
         }
         return txOutChanges;
@@ -412,7 +412,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
     @Override
     protected void disconnectTransactions(StoredBlock oldBlock) throws PrunedException, BlockStoreException {
         checkState(lock.isHeldByCurrentThread());
-        blockStore.beginDatabaseBatchWrite();
+        blockStore.beginBatchWrite();
         try {
             StoredTxOChanges undoBlock = blockStore.getUndoBlock(oldBlock.getHeader().getHash());
             if (undoBlock == null) throw new PrunedException(oldBlock.getHeader().getHash());
@@ -422,10 +422,10 @@ public class VerifiedBlockChain extends AbstractBlockChain {
             for(StoredTransactionOutput out : txOutChanges.txOutsCreated)
                 blockStore.removeUnspentTransactionOutput(out);
         } catch (PrunedException e) {
-            blockStore.abortDatabaseBatchWrite();
+            blockStore.abortBatchWrite();
             throw e;
         } catch (BlockStoreException e) {
-            blockStore.abortDatabaseBatchWrite();
+            blockStore.abortBatchWrite();
             throw e;
         }
     }
@@ -434,12 +434,12 @@ public class VerifiedBlockChain extends AbstractBlockChain {
     protected void doSetChainHead(StoredBlock chainHead) throws BlockStoreException {
         checkState(lock.isHeldByCurrentThread());
         blockStore.setVerifiedChainHead(chainHead);
-        blockStore.commitDatabaseBatchWrite();
+        blockStore.commitBatchWrite();
     }
 
     @Override
     protected void notSettingChainHead() throws BlockStoreException {
-        blockStore.abortDatabaseBatchWrite();
+        blockStore.abortBatchWrite();
     }
 
     @Override
