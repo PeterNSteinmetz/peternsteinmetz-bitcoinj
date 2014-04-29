@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -43,6 +44,12 @@ public abstract class AbstractSqlPrunedBlockStore implements PrunedBlockStore {
   protected String connectionURL;
   protected int fullStoreDepth;
 
+  // :TODO: chainhead settings should be maintained by separate object
+  protected static final String CHAIN_HEAD_SETTING = "chainhead";
+  protected static final String VERIFIED_CHAIN_HEAD_SETTING = "verifiedchainhead";
+  protected static final String VERSION_SETTING = "version";
+
+
   /**
    * <p>Establish a connection, if one doesn't already exist.</p>
    *
@@ -51,6 +58,73 @@ public abstract class AbstractSqlPrunedBlockStore implements PrunedBlockStore {
    * @throws BlockStoreException
    */
   protected abstract void maybeConnect() throws BlockStoreException;
+
+  @Override
+  public StoredBlock getChainHead() throws BlockStoreException {
+    return chainHeadBlock;
+  }
+
+  @Override
+  public void setChainHead(StoredBlock chainHead) throws BlockStoreException {
+    Sha256Hash hash = chainHead.getHeader().getHash();
+    this.chainHeadHash = hash;
+    this.chainHeadBlock = chainHead;
+    maybeConnect();
+    try {
+      PreparedStatement s = conn.get()
+         .prepareStatement("UPDATE settings SET value = ? WHERE name = ?");
+      s.setString(2, CHAIN_HEAD_SETTING);
+      s.setBytes(1, hash.getBytes());
+      s.executeUpdate();
+      s.close();
+    } catch (SQLException ex) {
+      throw new BlockStoreException(ex);
+    }
+  }
+
+  @Override
+  public StoredBlock getVerifiedChainHead() throws BlockStoreException {
+    return verifiedChainHeadBlock;
+  }
+
+  @Override
+  public void setVerifiedChainHead(StoredBlock chainHead) throws BlockStoreException {
+    Sha256Hash hash = chainHead.getHeader().getHash();
+    this.verifiedChainHeadHash = hash;
+    this.verifiedChainHeadBlock = chainHead;
+    maybeConnect();
+    try {
+      PreparedStatement s = conn.get()
+         .prepareStatement("UPDATE settings SET value = ? WHERE name = ?");
+      s.setString(2, VERIFIED_CHAIN_HEAD_SETTING);
+      s.setBytes(1, hash.getBytes());
+      s.executeUpdate();
+      s.close();
+    } catch (SQLException ex) {
+      throw new BlockStoreException(ex);
+    }
+    if (this.chainHeadBlock.getHeight() < chainHead.getHeight())
+      setChainHead(chainHead);
+    removeUndoableBlocksWhereHeightIsLessThan(chainHead.getHeight() - fullStoreDepth);
+  }
+
+  private void removeUndoableBlocksWhereHeightIsLessThan(int height) throws BlockStoreException {
+    try {
+      PreparedStatement s = conn.get()
+         .prepareStatement("DELETE FROM undoableBlocks WHERE height <= ?");
+      s.setInt(1, height);
+
+      if (log.isDebugEnabled())
+        log.debug("Deleting undoable undoable block with height <= " + height);
+
+
+      s.executeUpdate();
+      s.close();
+    } catch (SQLException ex) {
+      throw new BlockStoreException(ex);
+    }
+  }
+
 
   /**
    * <p>Begins/Commits/Aborts a database transaction.</p>

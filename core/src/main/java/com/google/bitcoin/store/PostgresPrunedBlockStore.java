@@ -48,10 +48,6 @@ public class PostgresPrunedBlockStore extends AbstractSqlPrunedBlockStore {
             "    name character varying(32) NOT NULL,\n" +
             "    value bytea\n" +
             ");";
-    private static final String CHAIN_HEAD_SETTING = "chainhead";
-    private static final String VERIFIED_CHAIN_HEAD_SETTING = "verifiedchainhead";
-    private static final String VERSION_SETTING = "version";
-
     private static final String CREATE_HEADERS_TABLE = "CREATE TABLE headers (" +
             "    hash bytea NOT NULL," +
             "    chainwork bytea NOT NULL," +
@@ -655,67 +651,6 @@ public class PostgresPrunedBlockStore extends AbstractSqlPrunedBlockStore {
         }
     }
 
-    public StoredBlock getChainHead() throws BlockStoreException {
-        return chainHeadBlock;
-    }
-
-    public void setChainHead(StoredBlock chainHead) throws BlockStoreException {
-        Sha256Hash hash = chainHead.getHeader().getHash();
-        this.chainHeadHash = hash;
-        this.chainHeadBlock = chainHead;
-        maybeConnect();
-        try {
-            PreparedStatement s = conn.get()
-                    .prepareStatement("UPDATE settings SET value = ? WHERE name = ?");
-            s.setString(2, CHAIN_HEAD_SETTING);
-            s.setBytes(1, hash.getBytes());
-            s.executeUpdate();
-            s.close();
-        } catch (SQLException ex) {
-            throw new BlockStoreException(ex);
-        }
-    }
-
-    public StoredBlock getVerifiedChainHead() throws BlockStoreException {
-        return verifiedChainHeadBlock;
-    }
-
-    public void setVerifiedChainHead(StoredBlock chainHead) throws BlockStoreException {
-        Sha256Hash hash = chainHead.getHeader().getHash();
-        this.verifiedChainHeadHash = hash;
-        this.verifiedChainHeadBlock = chainHead;
-        maybeConnect();
-        try {
-            PreparedStatement s = conn.get()
-                    .prepareStatement("UPDATE settings SET value = ? WHERE name = ?");
-            s.setString(2, VERIFIED_CHAIN_HEAD_SETTING);
-            s.setBytes(1, hash.getBytes());
-            s.executeUpdate();
-            s.close();
-        } catch (SQLException ex) {
-            throw new BlockStoreException(ex);
-        }
-        if (this.chainHeadBlock.getHeight() < chainHead.getHeight())
-            setChainHead(chainHead);
-        removeUndoableBlocksWhereHeightIsLessThan(chainHead.getHeight() - fullStoreDepth);
-    }
-
-    private void removeUndoableBlocksWhereHeightIsLessThan(int height) throws BlockStoreException {
-        try {
-            PreparedStatement s = conn.get()
-                    .prepareStatement("DELETE FROM undoableBlocks WHERE height <= ?");
-            s.setInt(1, height);
-
-            if (log.isDebugEnabled())
-                log.debug("Deleting undoable undoable block with height <= " + height);
-
-
-            s.executeUpdate();
-            s.close();
-        } catch (SQLException ex) {
-            throw new BlockStoreException(ex);
-        }
-    }
 
     public StoredTransactionOutput getTransactionOutput(Sha256Hash hash, long index) throws BlockStoreException {
         maybeConnect();

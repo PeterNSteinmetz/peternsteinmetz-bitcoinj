@@ -566,63 +566,6 @@ public class H2PrunedBlockStore extends AbstractSqlPrunedBlockStore {
         }
     }
 
-    public StoredBlock getChainHead() throws BlockStoreException {
-        return chainHeadBlock;
-    }
-
-    public void setChainHead(StoredBlock chainHead) throws BlockStoreException {
-        Sha256Hash hash = chainHead.getHeader().getHash();
-        this.chainHeadHash = hash;
-        this.chainHeadBlock = chainHead;
-        maybeConnect();
-        try {
-            PreparedStatement s = conn.get()
-                .prepareStatement("UPDATE settings SET value = ? WHERE name = ?");
-            s.setString(2, CHAIN_HEAD_SETTING);
-            s.setBytes(1, hash.getBytes());
-            s.executeUpdate();
-            s.close();
-        } catch (SQLException ex) {
-            throw new BlockStoreException(ex);
-        }
-    }
-    
-    public StoredBlock getVerifiedChainHead() throws BlockStoreException {
-        return verifiedChainHeadBlock;
-    }
-
-    public void setVerifiedChainHead(StoredBlock chainHead) throws BlockStoreException {
-        Sha256Hash hash = chainHead.getHeader().getHash();
-        this.verifiedChainHeadHash = hash;
-        this.verifiedChainHeadBlock = chainHead;
-        maybeConnect();
-        try {
-            PreparedStatement s = conn.get()
-                .prepareStatement("UPDATE settings SET value = ? WHERE name = ?");
-            s.setString(2, VERIFIED_CHAIN_HEAD_SETTING);
-            s.setBytes(1, hash.getBytes());
-            s.executeUpdate();
-            s.close();
-        } catch (SQLException ex) {
-            throw new BlockStoreException(ex);
-        }
-        if (this.chainHeadBlock.getHeight() < chainHead.getHeight())
-            setChainHead(chainHead);
-        removeUndoableBlocksWhereHeightIsLessThan(chainHead.getHeight() - fullStoreDepth);
-    }
-
-    private void removeUndoableBlocksWhereHeightIsLessThan(int height) throws BlockStoreException {
-        try {
-            PreparedStatement s = conn.get()
-                .prepareStatement("DELETE FROM undoableBlocks WHERE height <= ?");
-            s.setInt(1, height);
-            s.executeUpdate();
-            s.close();
-        } catch (SQLException ex) {
-            throw new BlockStoreException(ex);
-        }
-    }
-
     @Nullable
     public StoredTransactionOutput getTransactionOutput(Sha256Hash hash, long index) throws BlockStoreException {
         maybeConnect();
