@@ -33,12 +33,12 @@ import java.util.concurrent.*;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * <p>A VerifiedBlockChain works in conjunction with a {@link com.google.bitcoin.store.PrunedBlockStore} to verify all the rules of the
- * Bitcoin system, with the downside being a larg cost in system resources. Fully verifying means all unspent transaction
- * outputs are stored. Once a transaction output is spent and that spend is buried deep enough, the data related to it
- * is deleted to ensure disk space usage doesn't grow forever. For this reason a pruning node cannot serve the full
- * block chain to other clients, but it nevertheless provides the same security guarantees as a regular Satoshi
- * client does.</p>
+ * <p>A VerifiedBlockChain works in conjunction with a {@link com.google.bitcoin.store.PrunedBlockStore} to verify all
+ * the rules of the Bitcoin system, with the downside being a large cost in system resources. Fully verifying means all
+ * unspent transaction outputs are stored. Once a transaction output is spent and that spend is buried deep enough,
+ * the data related to it is deleted to ensure disk space usage doesn't grow forever. For this reason a pruning node
+ * cannot serve the full block chain to other clients, but it nevertheless provides the same security guarantees as a
+ * regular Satoshi client does.</p>
  */
 public class VerifiedBlockChain extends AbstractBlockChain {
     private static final Logger log = LoggerFactory.getLogger(VerifiedBlockChain.class);
@@ -50,7 +50,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
     private boolean runScripts = true;
 
     /**
-     * Constructs a SPVBlockChain connected to the given wallet and store. To obtain a {@link Wallet} you can construct
+     * Constructs a VerifiedBlockChain connected to the given wallet and store. To obtain a {@link Wallet} you can construct
      * one from scratch, or you can deserialize a saved wallet from disk using {@link Wallet#loadFromFile(java.io.File)}
      */
     public VerifiedBlockChain(NetworkParameters params, Wallet wallet, PrunedBlockStore blockStore) throws BlockStoreException {
@@ -60,7 +60,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
     }
 
     /**
-     * Constructs a SPVBlockChain that has no wallet at all. This is helpful when you don't actually care about sending
+     * Constructs a VerifiedBlockChain that has no wallet at all. This is helpful when you don't actually care about sending
      * and receiving coins but rather, just want to explore the network data structures.
      */
     public VerifiedBlockChain(NetworkParameters params, PrunedBlockStore blockStore) throws BlockStoreException {
@@ -68,7 +68,7 @@ public class VerifiedBlockChain extends AbstractBlockChain {
     }
 
     /**
-     * Constructs a SPVBlockChain connected to the given list of wallets and a store.
+     * Constructs a VerifiedBlockChain connected to the given list of wallets and a store.
      */
     public VerifiedBlockChain(NetworkParameters params, List<BlockChainListener> listeners,
                               PrunedBlockStore blockStore) throws BlockStoreException {

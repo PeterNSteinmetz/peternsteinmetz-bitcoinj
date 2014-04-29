@@ -55,14 +55,14 @@ import static com.google.common.base.Preconditions.*;
  * <p>There are two subclasses of AbstractBlockChain that are useful: {@link SPVBlockChain}, which is the simplest
  * class and implements <i>simplified payment verification</i>. This is a lightweight and efficient mode that does
  * not verify the contents of blocks, just their headers. A {@link VerifiedBlockChain} paired with a
- * {@link com.google.bitcoin.store.H2PrunedBlockStore} implements full verification, which is equivalent to the
+ * {@link com.google.bitcoin.store.PrunedBlockStore} implements full verification, which is equivalent to the
  * original Satoshi client. To learn more about the alternative security models, please consult the articles on the
  * website.</p>
  *
  * <b>Theory</b>
  *
  * <p>The 'chain' is actually a tree although in normal operation it operates mostly as a list of {@link Block}s.
- * When multiple new head blocks are found simultaneously, there are multiple stories of the economy competing to become
+ * When multiple new head blocks are found simultaneously, there are multiple versions of the economy competing to become
  * the one true consensus. This can happen naturally when two miners solve a block within a few seconds of each other,
  * or it can happen when the chain is under attack.</p>
  *
@@ -89,7 +89,7 @@ public abstract class AbstractBlockChain {
     /**
      * Tracks the top of the best known chain.<p>
      *
-     * Following this one down to the genesis block produces the story of the economy from the creation of Bitcoin
+     * Following this one down to the genesis block produces the version of the economy from the creation of Bitcoin
      * until the present day. The chain head can change if a new set of blocks is received that results in a chain of
      * greater work than the one obtained by following this one down. In that case a reorganize is triggered,
      * potentially invalidating transactions in our wallet.
@@ -138,7 +138,7 @@ public abstract class AbstractBlockChain {
 
 
     /**
-     * Constructs a SPVBlockChain connected to the given list of listeners (eg, wallets) and a store.
+     * Constructs an AbstractBlockChain connected to the given list of listeners (eg, wallets) and a store.
      */
     public AbstractBlockChain(NetworkParameters params, List<BlockChainListener> listeners,
                               BlockStore blockStore) throws BlockStoreException {
@@ -151,10 +151,10 @@ public abstract class AbstractBlockChain {
     }
 
     /**
-     * Add a wallet to the SPVBlockChain. Note that the wallet will be unaffected by any blocks received while it
-     * was not part of this SPVBlockChain. This method is useful if the wallet has just been created, and its keys
-     * have never been in use, or if the wallet has been loaded along with the SPVBlockChain. Note that adding multiple
-     * wallets is not well tested!
+     * Add a wallet to the AbstractBlockChain. Note that the wallet will be unaffected by any blocks received while it
+     * was not part of this AbstractBlockChain. This method is useful if the wallet has just been created, and its keys
+     * have never been in use, or if the wallet has been loaded along with the AbstractBlockChain. Note that adding
+     * multiple wallets is not well tested!
      */
     public void addWallet(Wallet wallet) {
         addListener(wallet, Threading.SAME_THREAD);
@@ -177,7 +177,7 @@ public abstract class AbstractBlockChain {
     }
 
     /**
-     * Adds a generic {@link BlockChainListener} listener to the chain.
+     * Adds a generic {@link BlockChainListener} listener to the chain to be executed with the specified Executor.
      */
     public void addListener(BlockChainListener listener, Executor executor) {
         listeners.add(new ListenerRegistration<BlockChainListener>(listener, executor));
