@@ -34,6 +34,14 @@ import java.util.List;
 /**
  * <p>Provides an abstract base class for {@link com.google.bitcoin.store.PrunedBlockStore}s
  * which use an SQL database for storage.</p>
+ *
+ * <p>Presently this is a crude pull-up of some of the common fields and methods between the
+ * H2 and PostgreSQL implementations.</p>
+ *
+ * <p>:TODO: These classes really need test coverage, possibly
+ * using a mocking library on the JDBC connections, such as MockRunner or a general library
+ * like PowerMock. After those are present, a more elegant refactoring with template methods
+ * should be possible.
  */
 public abstract class AbstractSqlPrunedBlockStore implements PrunedBlockStore {
   private static final Logger log = LoggerFactory.getLogger(AbstractSqlPrunedBlockStore.class);
