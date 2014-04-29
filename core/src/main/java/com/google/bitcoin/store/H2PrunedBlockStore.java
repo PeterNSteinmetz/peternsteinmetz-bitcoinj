@@ -134,7 +134,7 @@ public class H2PrunedBlockStore extends AbstractSqlPrunedBlockStore {
         }
     }
     
-    private synchronized void maybeConnect() throws BlockStoreException {
+    protected synchronized void maybeConnect() throws BlockStoreException {
         try {
             if (conn.get() != null)
                 return;
@@ -691,38 +691,6 @@ public class H2PrunedBlockStore extends AbstractSqlPrunedBlockStore {
             s.close();
             if (updateCount == 0)
                 throw new BlockStoreException("Tried to remove a StoredTransactionOutput from H2PrunedBlockStore that it didn't have!");
-        } catch (SQLException e) {
-            throw new BlockStoreException(e);
-        }
-    }
-
-    @Override
-    public void beginBatchWrite() throws BlockStoreException {
-        maybeConnect();
-        try {
-            conn.get().setAutoCommit(false);
-        } catch (SQLException e) {
-            throw new BlockStoreException(e);
-        }
-    }
-
-    @Override
-    public void commitBatchWrite() throws BlockStoreException {
-        maybeConnect();
-        try {
-            conn.get().commit();
-            conn.get().setAutoCommit(true);
-        } catch (SQLException e) {
-            throw new BlockStoreException(e);
-        }
-    }
-
-    @Override
-    public void abortBatchWrite() throws BlockStoreException {
-        maybeConnect();
-        try {
-            conn.get().rollback();
-            conn.get().setAutoCommit(true);
         } catch (SQLException e) {
             throw new BlockStoreException(e);
         }

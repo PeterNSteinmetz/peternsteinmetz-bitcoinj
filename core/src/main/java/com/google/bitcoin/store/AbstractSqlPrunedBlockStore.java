@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -42,6 +43,14 @@ public abstract class AbstractSqlPrunedBlockStore implements PrunedBlockStore {
   protected String connectionURL;
   protected int fullStoreDepth;
 
+  /**
+   * <p>Establish a connection, if one doesn't already exist.</p>
+   *
+   * <p>Implementations should be synchronized for thread safety.</p>
+   *
+   * @throws BlockStoreException
+   */
+  protected abstract void maybeConnect() throws BlockStoreException;
 
   /**
    * <p>Begins/Commits/Aborts a database transaction.</p>
@@ -55,9 +64,51 @@ public abstract class AbstractSqlPrunedBlockStore implements PrunedBlockStore {
    * Multiple calls to beginDatabaseBatchWrite() in any given thread should be ignored and treated as one call.</p>
    */
   @Override
-  public abstract void beginBatchWrite() throws BlockStoreException;
+  public void beginBatchWrite() throws BlockStoreException {
+
+    maybeConnect();
+    if (log.isDebugEnabled())
+      log.debug("Starting database batch write with connection: " + conn.get().toString());
+
+    try {
+      conn.get().setAutoCommit(false);
+    } catch (SQLException e) {
+      throw new BlockStoreException(e);
+    }
+  }
+
   @Override
-  public abstract void commitBatchWrite() throws BlockStoreException;
-  @Override public abstract void abortBatchWrite() throws BlockStoreException;
+  public void commitBatchWrite() throws BlockStoreException {
+    maybeConnect();
+
+    if (log.isDebugEnabled())
+      log.debug("Committing database batch write with connection: " + conn.get().toString());
+
+    try {
+      conn.get().commit();
+      conn.get().setAutoCommit(true);
+    } catch (SQLException e) {
+      throw new BlockStoreException(e);
+    }
+  }
+
+  @Override
+  public void abortBatchWrite() throws BlockStoreException {
+
+    maybeConnect();
+    if (log.isDebugEnabled())
+      log.debug("Rollback database batch write with connection: " + conn.get().toString());
+
+    try {
+      if (!conn.get().getAutoCommit()) {
+        conn.get().rollback();
+        conn.get().setAutoCommit(true);
+      } else {
+        log.warn("Warning: Rollback attempt without transaction");
+      }
+    } catch (SQLException e) {
+      throw new BlockStoreException(e);
+    }
+  }
 
 }

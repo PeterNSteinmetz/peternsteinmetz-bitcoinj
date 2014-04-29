@@ -179,9 +179,7 @@ public class PostgresPrunedBlockStore extends AbstractSqlPrunedBlockStore {
         }
     }
 
-
-
-    private synchronized void maybeConnect() throws BlockStoreException {
+    protected synchronized void maybeConnect() throws BlockStoreException {
         try {
             if (conn.get() != null)
                 return;
@@ -829,56 +827,6 @@ public class PostgresPrunedBlockStore extends AbstractSqlPrunedBlockStore {
             s.setInt(2, (int)out.getIndex());
             s.executeUpdate();
             s.close();
-        } catch (SQLException e) {
-            throw new BlockStoreException(e);
-        }
-    }
-
-    @Override
-    public void beginBatchWrite() throws BlockStoreException {
-
-        maybeConnect();
-        if (log.isDebugEnabled())
-            log.debug("Starting database batch write with connection: " + conn.get().toString());
-
-
-        try {
-            conn.get().setAutoCommit(false);
-        } catch (SQLException e) {
-            throw new BlockStoreException(e);
-        }
-    }
-
-    @Override
-    public void commitBatchWrite() throws BlockStoreException {
-        maybeConnect();
-
-        if (log.isDebugEnabled())
-            log.debug("Committing database batch write with connection: " + conn.get().toString());
-
-
-        try {
-            conn.get().commit();
-            conn.get().setAutoCommit(true);
-        } catch (SQLException e) {
-            throw new BlockStoreException(e);
-        }
-    }
-
-    @Override
-    public void abortBatchWrite() throws BlockStoreException {
-
-        maybeConnect();
-        if (log.isDebugEnabled())
-            log.debug("Rollback database batch write with connection: " + conn.get().toString());
-
-        try {
-            if (!conn.get().getAutoCommit()) {
-                conn.get().rollback();
-                conn.get().setAutoCommit(true);
-            } else {
-                log.warn("Warning: Rollback attempt without transaction");
-            }
         } catch (SQLException e) {
             throw new BlockStoreException(e);
         }
