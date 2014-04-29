@@ -566,36 +566,6 @@ public class H2PrunedBlockStore extends AbstractSqlPrunedBlockStore {
         }
     }
 
-    @Nullable
-    public StoredTransactionOutput getTransactionOutput(Sha256Hash hash, long index) throws BlockStoreException {
-        maybeConnect();
-        PreparedStatement s = null;
-        try {
-            s = conn.get()
-                .prepareStatement("SELECT height, value, scriptBytes FROM openOutputs " +
-                        "WHERE hash = ? AND index = ?");
-            s.setBytes(1, hash.getBytes());
-            // index is actually an unsigned int
-            s.setInt(2, (int)index);
-            ResultSet results = s.executeQuery();
-            if (!results.next()) {
-                return null;
-            }
-            // Parse it.
-            int height = results.getInt(1);
-            BigInteger value = new BigInteger(results.getBytes(2));
-            // Tell the StoredTransactionOutput that we are a coinbase, as that is encoded in height
-            return new StoredTransactionOutput(hash, index, value, height, true, results.getBytes(3));
-        } catch (SQLException ex) {
-            throw new BlockStoreException(ex);
-        } finally {
-            if (s != null)
-                try {
-                    s.close();
-                } catch (SQLException e) { throw new BlockStoreException("Failed to close PreparedStatement"); }
-        }
-    }
-
     public void addUnspentTransactionOutput(StoredTransactionOutput out) throws BlockStoreException {
         maybeConnect();
         PreparedStatement s = null;
@@ -639,26 +609,4 @@ public class H2PrunedBlockStore extends AbstractSqlPrunedBlockStore {
         }
     }
 
-    public boolean hasUnspentOutputs(Sha256Hash hash, int numOutputs) throws BlockStoreException {
-        maybeConnect();
-        PreparedStatement s = null;
-        try {
-            s = conn.get()
-                .prepareStatement("SELECT COUNT(*) FROM openOutputs WHERE hash = ?");
-            s.setBytes(1, hash.getBytes());
-            ResultSet results = s.executeQuery();
-            if (!results.next()) {
-                throw new BlockStoreException("Got no results from a COUNT(*) query");
-            }
-            int count = results.getInt(1);
-            return count != 0;
-        } catch (SQLException ex) {
-            throw new BlockStoreException(ex);
-        } finally {
-            if (s != null)
-                try {
-                    s.close();
-                } catch (SQLException e) { throw new BlockStoreException("Failed to close PreparedStatement"); }
-        }
-    }
 }

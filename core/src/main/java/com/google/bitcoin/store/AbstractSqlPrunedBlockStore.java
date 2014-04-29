@@ -19,11 +19,15 @@ package com.google.bitcoin.store;
 import com.google.bitcoin.core.NetworkParameters;
 import com.google.bitcoin.core.Sha256Hash;
 import com.google.bitcoin.core.StoredBlock;
+import com.google.bitcoin.core.StoredTransactionOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -125,19 +129,60 @@ public abstract class AbstractSqlPrunedBlockStore implements PrunedBlockStore {
     }
   }
 
+  @Nullable
+  public StoredTransactionOutput getTransactionOutput(Sha256Hash hash, long index) throws BlockStoreException {
+    maybeConnect();
+    PreparedStatement s = null;
+    try {
+      s = conn.get()
+         .prepareStatement("SELECT height, value, scriptBytes FROM openOutputs " +
+            "WHERE hash = ? AND index = ?");
+      s.setBytes(1, hash.getBytes());
+      // index is actually an unsigned int
+      s.setInt(2, (int)index);
+      ResultSet results = s.executeQuery();
+      if (!results.next()) {
+        return null;
+      }
+      // Parse it.
+      int height = results.getInt(1);
+      BigInteger value = new BigInteger(results.getBytes(2));
+      // Tell the StoredTransactionOutput that we are a coinbase, as that is encoded in height
+      StoredTransactionOutput txout = new StoredTransactionOutput(hash, index, value, height, true, results.getBytes(3));
+      return txout;
+    } catch (SQLException ex) {
+      throw new BlockStoreException(ex);
+    } finally {
+      if (s != null)
+        try {
+          s.close();
+        } catch (SQLException e) { throw new BlockStoreException("Failed to close PreparedStatement"); }
+    }
+  }
 
-  /**
-   * <p>Begins/Commits/Aborts a database transaction.</p>
-   *
-   * <p>If abortDatabaseBatchWrite() is called by the same thread that called beginDatabaseBatchWrite(),
-   * any data writes between this call and abortDatabaseBatchWrite() made by the same thread
-   * should be discarded.</p>
-   *
-   * <p>Furthermore, any data written after a call to beginDatabaseBatchWrite() should not be readable
-   * by any other threads until commitDatabaseBatchWrite() has been called by this thread.
-   * Multiple calls to beginDatabaseBatchWrite() in any given thread should be ignored and treated as one call.</p>
-   */
-  @Override
+  public boolean hasUnspentOutputs(Sha256Hash hash, int numOutputs) throws BlockStoreException {
+    maybeConnect();
+    PreparedStatement s = null;
+    try {
+      s = conn.get()
+         .prepareStatement("SELECT COUNT(*) FROM openOutputs WHERE hash = ?");
+      s.setBytes(1, hash.getBytes());
+      ResultSet results = s.executeQuery();
+      if (!results.next()) {
+        throw new BlockStoreException("Got no results from a COUNT(*) query");
+      }
+      int count = results.getInt(1);
+      return count != 0;
+    } catch (SQLException ex) {
+      throw new BlockStoreException(ex);
+    } finally {
+      if (s != null)
+        try {
+          s.close();
+        } catch (SQLException e) { throw new BlockStoreException("Failed to close PreparedStatement"); }
+    }
+  }
+
   public void beginBatchWrite() throws BlockStoreException {
 
     maybeConnect();
@@ -151,7 +196,6 @@ public abstract class AbstractSqlPrunedBlockStore implements PrunedBlockStore {
     }
   }
 
-  @Override
   public void commitBatchWrite() throws BlockStoreException {
     maybeConnect();
 
@@ -166,7 +210,6 @@ public abstract class AbstractSqlPrunedBlockStore implements PrunedBlockStore {
     }
   }
 
-  @Override
   public void abortBatchWrite() throws BlockStoreException {
 
     maybeConnect();
