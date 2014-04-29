@@ -39,15 +39,6 @@ public class PostgresPrunedBlockStore extends AbstractSqlPrunedBlockStore {
     private static final Logger log = LoggerFactory.getLogger(PostgresPrunedBlockStore.class);
     private static final String POSTGRES_DUPLICATE_KEY_ERROR_CODE = "23505";
 
-    private Sha256Hash chainHeadHash;
-    private StoredBlock chainHeadBlock;
-    private Sha256Hash verifiedChainHeadHash;
-    private StoredBlock verifiedChainHeadBlock;
-    private NetworkParameters params;
-    private ThreadLocal<Connection> conn;
-    private List<Connection> allConnections;
-    private String connectionURL;
-    private int fullStoreDepth;
     private String username;
     private String password;
     private String schemaName;

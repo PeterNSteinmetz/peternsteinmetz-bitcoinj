@@ -42,16 +42,6 @@ import java.util.List;
 public class H2PrunedBlockStore extends AbstractSqlPrunedBlockStore {
     private static final Logger log = LoggerFactory.getLogger(H2PrunedBlockStore.class);
 
-    private Sha256Hash chainHeadHash;
-    private StoredBlock chainHeadBlock;
-    private Sha256Hash verifiedChainHeadHash;
-    private StoredBlock verifiedChainHeadBlock;
-    private NetworkParameters params;
-    private ThreadLocal<Connection> conn;
-    private List<Connection> allConnections;
-    private String connectionURL;
-    private int fullStoreDepth;
-
     static final String driver = "org.h2.Driver";
     static final String CREATE_SETTINGS_TABLE = "CREATE TABLE settings ( "
         + "name VARCHAR(32) NOT NULL CONSTRAINT settings_pk PRIMARY KEY,"

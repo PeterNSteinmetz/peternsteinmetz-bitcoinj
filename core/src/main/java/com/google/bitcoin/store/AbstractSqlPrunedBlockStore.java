@@ -16,11 +16,32 @@
 
 package com.google.bitcoin.store;
 
+import com.google.bitcoin.core.NetworkParameters;
+import com.google.bitcoin.core.Sha256Hash;
+import com.google.bitcoin.core.StoredBlock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.util.List;
+
 /**
  * <p>Provides an abstract base class for {@link com.google.bitcoin.store.PrunedBlockStore}s
  * which use an SQL database for storage.</p>
  */
 public abstract class AbstractSqlPrunedBlockStore implements PrunedBlockStore {
+  private static final Logger log = LoggerFactory.getLogger(AbstractSqlPrunedBlockStore.class);
+
+  protected Sha256Hash chainHeadHash;
+  protected StoredBlock chainHeadBlock;
+  protected Sha256Hash verifiedChainHeadHash;
+  protected StoredBlock verifiedChainHeadBlock;
+  protected NetworkParameters params;
+  protected ThreadLocal<Connection> conn;
+  protected List<Connection> allConnections;
+  protected String connectionURL;
+  protected int fullStoreDepth;
+
 
   /**
    * <p>Begins/Commits/Aborts a database transaction.</p>
